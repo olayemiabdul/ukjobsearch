@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1063846392894",
+    "project_id": "uk-job-search",
+    "storage_bucket": "uk-job-search.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063846392894:android:c279345ab8aee9fe87cd6f",
+        "android_client_info": {
+          "package_name": "com.example.ukjobsearch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1063846392894-6b5jmpla5b025en01cdfcr2vd6rtfei0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ukjobsearch",
+            "certificate_hash": "d0acc1ef71ac283c97243bf81c6381b837a820c2"
+          }
+        },
+        {
+          "client_id": "1063846392894-i7340omcva3j1chr3pvljj2d4a3ip7vd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrZNuhmtxW6AEEOXpIrHAiRPK9rOvAHMk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1063846392894-i7340omcva3j1chr3pvljj2d4a3ip7vd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1063846392894-ht17n1ngr16277teq253bbhjo2ncj23n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ukjobsearch"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
