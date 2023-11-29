@@ -105,7 +105,7 @@ class _SearchScreen1State extends State<SearchScreen1> {
                           builder: (_) => ChangeNotifierProvider.value(
                             value: provider,
                             child: mySearch(
-                              jobName: jobTitleController.text,
+                              jobName: jobTitleController.text, jobCity: cityController.text,
                             ),
                           ),
                         ),

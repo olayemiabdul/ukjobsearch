@@ -36,6 +36,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+     //this line of code is needed for ugrading flutter to 3.16
+     packagingOptions {
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libfbjni.so'
+    }
 
     kotlinOptions {
         jvmTarget = '1.8'

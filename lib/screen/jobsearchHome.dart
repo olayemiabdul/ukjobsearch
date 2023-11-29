@@ -89,36 +89,34 @@ class _JobsearchScreenState extends State<JobsearchScreen> {
                         alignment: selected
                             ? Alignment.center
                             : AlignmentDirectional.topCenter,
-                        child: Expanded(
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.add,
-                                size: 20,
-                                color: Colors.black,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.add,
+                              size: 20,
+                              color: Colors.black,
+                            ),
+                            TextButton(
+                              child: Text(
+                                'Login',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 24),
                               ),
-                              TextButton(
-                                child: Text(
-                                  'Login',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 24),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    selected = !selected;
-                                  });
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => LoginPage(
-                                        clickSignup: () {},
-                                      ),
+                              onPressed: () {
+                                setState(() {
+                                  selected = !selected;
+                                });
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LoginPage(
+                                      clickSignup: () {},
                                     ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(

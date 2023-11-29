@@ -14,9 +14,8 @@ import 'package:path/path.dart';
 
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
-
 class WelcomeHomeScreen extends StatefulWidget {
-  WelcomeHomeScreen({Key? key}) : super(key: key);
+  const WelcomeHomeScreen({Key? key}) : super(key: key);
 
   @override
   State<WelcomeHomeScreen> createState() => _WelcomeHomeScreenState();
@@ -31,6 +30,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
   PlatformFile? pickedFiles;
   UploadTask? uploadTask; // for file download
   PlatformFile? savedFile;
+  final user = FirebaseAuth.instance.currentUser;
 
   //select file from folder
   Future selectedFile() async {
@@ -41,7 +41,6 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
     if (selected == null) return;
     setState(() {
       pickedFiles = selected.files.last;
-      
     });
   }
 
@@ -68,34 +67,35 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
     print('Download link:${linkDownload}');
   }
 
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     var imageurl = user!.photoURL;
     DateTime selectedDate = DateTime.now();
     Widget title = ListTile(
-      leading: Icon(Icons.input),
-      title: Text('HomePage'),
+      leading: const Icon(Icons.input),
+      title: const Text('HomePage'),
       onTap: () => {},
     );
     Widget item1 = ListTile(
-      leading: Icon(Icons.verified_user),
-      title: Text('Profile'),
+      leading: const Icon(Icons.verified_user),
+      title: const Text('Profile'),
       onTap: () => {Navigator.of(context).pop()},
     );
     Widget item2 = ListTile(
-      leading: Icon(Icons.settings),
-      title: Text('Settings'),
+      leading: const Icon(Icons.settings),
+      title: const Text('Settings'),
       onTap: () => {Navigator.of(context).pop()},
     );
     Widget item3 = ListTile(
-      leading: Icon(Icons.border_color),
-      title: Text('Feedback'),
+      leading: const Icon(Icons.border_color),
+      title: const Text('Feedback'),
       onTap: () => {Navigator.of(context).pop()},
     );
     Widget item4 = ListTile(
-      leading: Icon(Icons.exit_to_app),
-      title: Text('Logout'),
+      leading: const Icon(Icons.exit_to_app),
+      title: const Text('Logout'),
       onTap: () => {signOutFromGoogle()},
     );
 
@@ -103,7 +103,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
       child: Scaffold(
         appBar: AppBar(
           //backgroundColor: Colors.white,
-          title: Text(
+          title: const Text(
             'Profile',
             style: TextStyle(color: Colors.black),
           ),
@@ -136,7 +136,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
         ),
         body: ListView(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Padding(
@@ -146,7 +146,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
               child: InkWell(
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
@@ -159,7 +159,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                   ),
                   height: 40,
                   width: MediaQuery.of(context).size.width / 4,
-                  child: Center(
+                  child: const Center(
                       child: Text(
                     'EDIT',
                     style: TextStyle(color: Colors.white),
@@ -170,18 +170,15 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                 },
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Padding(
               //gmail photo or upload photo
               padding: const EdgeInsets.only(left: 20, bottom: 20),
-              child: Center(
-                  child: imageurl != null
-                      ? Image.network(user.photoURL!)
-                      : CircleAvatar(radius: 60, child: ProfileAvatar())),
+              child: Center(child: profilePhotoWidget(imageurl, user)),
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             Center(
@@ -192,30 +189,20 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
               padding: const EdgeInsets.only(left: 30),
               child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 1,
                   ),
-                  // Text(
-                  //   user.displayName!,
-                  //   // style: TextStyle(
-                  //   //   fontFamily: 'Poppins Bold',
-                  //   //   fontSize: 10,
-                  //   //   color: Colors.brown,
-
-                  //   // ),
-                  //   style: Theme.of(context).textTheme.headlineSmall,
-                  // ),
-
-                  Text(
-                    user.displayName!.toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  SizedBox(
+                  nameWidget(user),
+                  const Text(''
+                      // user.displayName.toString(),
+                      // style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                  const SizedBox(
                     width: 30,
                   ),
                   Text(
                     "${selectedDate.year} - ${selectedDate.month} - ${selectedDate.day}",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Poppins Bold',
                       fontSize: 14,
                       color: Colors.amberAccent,
@@ -224,28 +211,20 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Center(
-                child: Text(
-                  user.email!,
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            ),
-            SizedBox(
+            emailWidget(user),
+            const SizedBox(
               height: 15,
             ),
-            Divider(
+            const Divider(
               height: 1,
               thickness: 1,
               color: Colors.black,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
+            const Padding(
+              padding: EdgeInsets.only(left: 8),
               child: Row(
                 children: [
                   Icon(
@@ -257,7 +236,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                     width: 5,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 15),
+                    padding: EdgeInsets.only(bottom: 15),
                     child: Text(
                       'My Cv',
                       style: TextStyle(
@@ -272,10 +251,10 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
             Container(
               height: 600,
               width: double.infinity,
-              padding: EdgeInsets.all(15),
-              margin: EdgeInsets.only(left: 15, right: 15),
+              padding: const EdgeInsets.all(15),
+              margin: const EdgeInsets.only(left: 15, right: 15),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(5),
                     topRight: Radius.circular(5),
                     bottomLeft: Radius.circular(5),
@@ -327,7 +306,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                           padding: const EdgeInsets.only(top: 240),
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
+                              borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(10),
                                   topRight: Radius.circular(10),
                                   bottomLeft: Radius.circular(10),
@@ -344,7 +323,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                               onTap: () {
                                 selectedFile();
                               },
-                              child: Center(
+                              child: const Center(
                                   child: Text(
                                 'Select Cv',
                                 style: TextStyle(
@@ -356,10 +335,10 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             Padding(
@@ -368,7 +347,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
                           bottomLeft: Radius.circular(10),
@@ -382,22 +361,20 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                     height: 50,
                     width: 150,
                     child: InkWell(
-                      onTap: () {
-                       
-                      },
-                      child: Center(
+                      onTap: () {},
+                      child: const Center(
                           child: Text(
                         'Share Resume',
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       )),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 5,
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
                           bottomLeft: Radius.circular(10),
@@ -414,7 +391,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                       onTap: () {
                         uploadFile();
                       },
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Upload',
                           style: TextStyle(color: Colors.green, fontSize: 20),
@@ -429,6 +406,54 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
         ),
       ),
     );
+  }
+
+  Widget profilePhotoWidget(String? imageurl, User user) {
+    try {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: imageurl != null
+            ? Image.network(user.photoURL.toString())
+            : const CircleAvatar(radius: 60, child: ProfileAvatar()),
+      );
+    } catch (e) {
+      return const Text('Check the connectivity');
+    }
+  }
+
+  Widget nameWidget(User user) {
+    try {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          user.displayName!,
+          style: const TextStyle(
+            fontFamily: 'Poppins Bold',
+            fontSize: 10,
+            color: Colors.brown,
+          ),
+          //   style: Theme.of(context).textTheme.headlineSmall,
+        ),
+      );
+    } catch (e) {
+      return const Text('Check the connectivity');
+    }
+  }
+
+  Widget emailWidget(User user) {
+    try {
+      return Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: Center(
+          child: Text(
+            user.email.toString(),
+            style: const TextStyle(color: Colors.black),
+          ),
+        ),
+      );
+    } catch (e) {
+      return const Text('check network');
+    }
   }
 }
 
@@ -507,11 +532,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             CupertinoActionSheetAction(
                 onPressed: () =>
                     Navigator.of(context).pop(getNewImage(ImageSource.camera)),
-                child: Text('Camera')),
+                child: const Text('Camera')),
             CupertinoActionSheetAction(
                 onPressed: () =>
                     Navigator.of(context).pop(getNewImage(ImageSource.gallery)),
-                child: Text('Gallery'))
+                child: const Text('Gallery'))
           ],
         ),
       );
@@ -538,7 +563,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         height: 100,
                         fit: BoxFit.fill,
                       )
-                    : Image(
+                    : const Image(
                         image: AssetImage(
                           'assets/images/profile.png',
                         ),
@@ -553,7 +578,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                 onTap: () {
                   uploadImage(context);
                 },
-                child: FaIcon(
+                child: const FaIcon(
                   FontAwesomeIcons.camera,
                   color: Color(0xffffb702),
                   size: 25,
@@ -581,10 +606,10 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           ElevatedButton.icon(
               onPressed: () =>
                   Navigator.of(context).pop(getNewImage(ImageSource.camera)),
-              icon: FaIcon(
+              icon: const FaIcon(
                 FontAwesomeIcons.camera,
               ),
-              label: Text('Camera')),
+              label: const Text('Camera')),
           //  ListTile(
           //   leading:  Icon(Icons.browse_gallery),
           //   title: Text('Camera'),
@@ -593,8 +618,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           ElevatedButton.icon(
               onPressed: () =>
                   Navigator.of(context).pop(getNewImage(ImageSource.gallery)),
-              icon: Icon(Icons.image_outlined),
-              label: Text('Gallery'))
+              icon: const Icon(Icons.image_outlined),
+              label: const Text('Gallery'))
         ],
       ),
     );

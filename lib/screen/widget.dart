@@ -45,101 +45,97 @@ class _MyWidgetState extends State<MyWidget> {
             final List<Result> ola = snapshot.data!;
             final provider = Provider.of<FavouritesJob>(context);
 
-            return Expanded(
-              child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: ola.length,
-                  itemBuilder: (context, index) {
-                    //var employerProfile = olayemi[index].employerProfileId;
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          height: 170,
-                          width: 120,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(15),
-                                topRight: Radius.circular(15),
-                                bottomLeft: Radius.circular(15),
-                                bottomRight: Radius.circular(15)),
-                            color: Colors.green,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 1,
-                            ),
-                          ),
-                          child: ListTile(
-                            title: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    snapshot.data![index].jobTitle.toString(),
-                                    style: const TextStyle(
-                                        fontFamily: 'Poppins-ExtraBold',
-                                        fontSize: 20,
-                                        color: Colors.white),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    snapshot.data![index].employerName
-                                        .toString(),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child:
-                                      Text(ola[index].locationName.toString()),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                      "posted on ${ola[index].date.toString()}"),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                              ],
-                            ),
-                            //trailing:employerProfile !=null?Image.network(olayemi[index].employerProfileId):Image.asset('assets/images/emp.png'),
-                            trailing: IconButton(
-                                onPressed: () {
-                                  provider
-                                      .toggleFavourite(jobApi.abcJob[index]);
-                                },
-                                icon: provider.likedjobs(jobApi.abcJob[index])
-                                    ? const Icon(
-                                        Icons.favorite,
-                                        color: Colors.red,
-                                      )
-                                    : const Icon(Icons.favorite_border)),
-                            onTap: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: ((context) {
-                                return DescriptionPagem(
-                                  jobdetailsm: jobApi.abcJob[index],
-                                );
-                              })));
-                            },
-                          ),
+            return ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: ola.length,
+                itemBuilder: (context, index) {
+                  //var employerProfile = olayemi[index].employerProfileId;
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 170,
+                      width: 120,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            topRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15),
+                            bottomRight: Radius.circular(15)),
+                        color: Colors.green,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 1,
                         ),
                       ),
-                    );
-                  }),
-            );
+                      child: ListTile(
+                        title: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                snapshot.data![index].jobTitle.toString(),
+                                style: const TextStyle(
+                                    fontFamily: 'Poppins-ExtraBold',
+                                    fontSize: 20,
+                                    color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                snapshot.data![index].employerName
+                                    .toString(),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child:
+                                  Text(ola[index].locationName.toString()),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                  "posted on ${ola[index].date.toString()}"),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                          ],
+                        ),
+                        //trailing:employerProfile !=null?Image.network(olayemi[index].employerProfileId):Image.asset('assets/images/emp.png'),
+                        trailing: IconButton(
+                            onPressed: () {
+                              provider
+                                  .toggleFavourite(jobApi.abcJob[index]);
+                            },
+                            icon: provider.likedjobs(jobApi.abcJob[index])
+                                ? const Icon(
+                                    Icons.favorite,
+                                    color: Colors.red,
+                                  )
+                                : const Icon(Icons.favorite_border)),
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: ((context) {
+                            return DescriptionPagem(
+                              jobdetailsm: jobApi.abcJob[index],
+                            );
+                          })));
+                        },
+                      ),
+                    ),
+                  );
+                });
           } else {
             return  Align(
               child: SpinKitRing(
@@ -225,3 +221,5 @@ Drawer drawerNew(BuildContext context) {
     ),
   );
 }
+
+

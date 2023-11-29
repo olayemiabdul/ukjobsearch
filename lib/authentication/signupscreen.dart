@@ -33,193 +33,189 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Expanded(
-          child: ListView(
-            children: [
-              Form(
-                // form and textformfield is used to validate
-                key: formKey,
-                child: Column(children: [
-                  Align(
-                    child: Text(
-                      'First name',
-                      style: TextStyle(
-                        fontFamily: 'Poppins ExtraBold',
-                        fontSize: 20,
-                        color: Colors.black,
-                      ),
-                    ),
-                    alignment: Alignment.centerLeft,
-                  ),
-                  Card(
-                    color: Colors.white,
-                    elevation: 0,
-                    //shadowColor: Colors.black,
-                    shape: Border.all(
+        child: ListView(
+          children: [
+            Form(
+              // form and textformfield is used to validate
+              key: formKey,
+              child: Column(children: [
+                Align(
+                  child: Text(
+                    'First name',
+                    style: TextStyle(
+                      fontFamily: 'Poppins ExtraBold',
+                      fontSize: 20,
                       color: Colors.black,
-                      width: 1,
-                    ),
-                    child: TextFormField(
-                      controller: nameController,
-                      cursorColor: Colors.white,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                          //labelText: 'enter your Displayname',
-                          ),
-                      obscureText: false,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Align(
-                    child: Text(
-                      'Last name',
-                      style: TextStyle(
-                        fontFamily: 'Poppins ExtraBold',
-                        fontSize: 20,
-                        color: Colors.black,
-                      ),
-                    ),
-                    alignment: Alignment.centerLeft,
+                  alignment: Alignment.centerLeft,
+                ),
+                Card(
+                  color: Colors.white,
+                  elevation: 0,
+                  //shadowColor: Colors.black,
+                  shape: Border.all(
+                    color: Colors.black,
+                    width: 1,
                   ),
-                  SizedBox(
-                    height: 5,
+                  child: TextFormField(
+                    controller: nameController,
+                    cursorColor: Colors.white,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                        //labelText: 'enter your Displayname',
+                        ),
+                    obscureText: false,
                   ),
-                  Card(
-                    color: Colors.white,
-                    elevation: 0,
-                    //shadowColor: Colors.black,
-                    shape: Border.all(
+                ),
+                SizedBox(height: 10),
+                Align(
+                  child: Text(
+                    'Last name',
+                    style: TextStyle(
+                      fontFamily: 'Poppins ExtraBold',
+                      fontSize: 20,
                       color: Colors.black,
-                      width: 1,
                     ),
+                  ),
+                  alignment: Alignment.centerLeft,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Card(
+                  color: Colors.white,
+                  elevation: 0,
+                  //shadowColor: Colors.black,
+                  shape: Border.all(
+                    color: Colors.black,
+                    width: 1,
+                  ),
 
-                    child: TextFormField(
-                      controller: lastnameController,
-                      cursorColor: Colors.white,
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                          //labelText: 'enter your Phonenumber',
-                          ),
-                      obscureText: false,
-                    ),
+                  child: TextFormField(
+                    controller: lastnameController,
+                    cursorColor: Colors.white,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                        //labelText: 'enter your Phonenumber',
+                        ),
+                    obscureText: false,
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Align(
-                    child: Text(
-                      'Email-address',
-                      style: TextStyle(
-                        fontFamily: 'Poppins ExtraBold',
-                        fontSize: 20,
-                        color: Colors.black,
-                      ),
-                    ),
-                    alignment: Alignment.bottomLeft,
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Card(
-                    color: Colors.white,
-                    elevation: 0,
-                    //shadowColor: Colors.black,
-                    shape: Border.all(
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Align(
+                  child: Text(
+                    'Email-address',
+                    style: TextStyle(
+                      fontFamily: 'Poppins ExtraBold',
+                      fontSize: 20,
                       color: Colors.black,
-                      width: 1,
-                    ),
-                    child: TextFormField(
-                      controller: emailController,
-                      cursorColor: Colors.white,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                          //labelText: 'enter your email',
-                          ),
-                      obscureText: false,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (email) =>
-                          email != null && !EmailValidator.validate(email)
-                              ? 'Enter your Email pls'
-                              : null,
                     ),
                   ),
-                  SizedBox(
-                    height: 10,
+                  alignment: Alignment.bottomLeft,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Card(
+                  color: Colors.white,
+                  elevation: 0,
+                  //shadowColor: Colors.black,
+                  shape: Border.all(
+                    color: Colors.black,
+                    width: 1,
                   ),
-                  Align(
-                    child: Text(
-                      'Enter your password',
-                      style: TextStyle(
-                        fontFamily: 'Poppins ExtraBold',
-                        fontSize: 20,
-                        color: Colors.black,
-                      ),
-                    ),
-                    alignment: Alignment.bottomLeft,
+                  child: TextFormField(
+                    controller: emailController,
+                    cursorColor: Colors.white,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                        //labelText: 'enter your email',
+                        ),
+                    obscureText: false,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (email) =>
+                        email != null && !EmailValidator.validate(email)
+                            ? 'Enter your Email pls'
+                            : null,
                   ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Card(
-                    color: Colors.white,
-                    elevation: 0,
-                    //shadowColor: Colors.black,
-                    shape: Border.all(
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Align(
+                  child: Text(
+                    'Enter your password',
+                    style: TextStyle(
+                      fontFamily: 'Poppins ExtraBold',
+                      fontSize: 20,
                       color: Colors.black,
-                      width: 1,
-                    ),
-                    child: Expanded(
-                      child: TextFormField(
-                        controller: passwordController,
-                        cursorColor: Colors.white,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                            //labelText: 'enter your password',
-                            ),
-                        obscureText: true,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (passwordvalue) =>
-                            passwordvalue != null && passwordvalue.length < 6
-                                ? 'Enter atleast 6 characters'
-                                : null,
-                      ),
                     ),
                   ),
-                  Checkbox(
-                      value: isChecked,
-                      checkColor: Colors.white,
-                      onChanged: (bool? value) async {
-                        setState(() {
-                          value = isChecked;
-                        });
-                      }),
-                  Text('Show Password'),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      signUp();
-                    },
-                    icon: Icon(Icons.lock_open),
-                    label: Text('SignUp'),
+                  alignment: Alignment.bottomLeft,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Card(
+                  color: Colors.white,
+                  elevation: 0,
+                  //shadowColor: Colors.black,
+                  shape: Border.all(
+                    color: Colors.black,
+                    width: 1,
                   ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: RichText(
-                        text: TextSpan(
-                            text: 'You already have an account ?',
-                            children: [
-                          TextSpan(
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = widget.clickSignin,
-                            text: 'Login',
-                          )
-                        ])),
-                  )
-                ]),
-              ),
-            ],
-          ),
+                  child: TextFormField(
+                    controller: passwordController,
+                    cursorColor: Colors.white,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                        //labelText: 'enter your password',
+                        ),
+                    obscureText: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (passwordvalue) =>
+                        passwordvalue != null && passwordvalue.length < 6
+                            ? 'Enter atleast 6 characters'
+                            : null,
+                  ),
+                ),
+                Checkbox(
+                    value: isChecked,
+                    checkColor: Colors.white,
+                    onChanged: (bool? value) async {
+                      setState(() {
+                        value = isChecked;
+                      });
+                    }),
+                Text('Show Password'),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    signUp();
+                  },
+                  icon: Icon(Icons.lock_open),
+                  label: Text('SignUp'),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: RichText(
+                      text: TextSpan(
+                          text: 'You already have an account ?',
+                          children: [
+                        TextSpan(
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = widget.clickSignin,
+                          text: 'Login',
+                        )
+                      ])),
+                )
+              ]),
+            ),
+          ],
         ),
       ),
     );
