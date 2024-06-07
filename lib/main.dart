@@ -11,6 +11,7 @@ import 'firebase_options.dart';
 import 'package:ukjobsearch/authentication/emailverification.dart';
 
 import 'package:ukjobsearch/utils.dart';
+
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -46,23 +47,50 @@ final navigatorkey = GlobalKey<NavigatorState>();
 
 class JobsearchApp extends StatelessWidget {
   const JobsearchApp({Key? key}) : super(key: key);
+  ColorScheme generatedScheme() {
+    return const ColorScheme(
+      // hot pink with teal
+      brightness: Brightness.dark,
+      primary: Color(0xff50C878),
+      onPrimary: Colors.white,
+      primaryContainer: Color(0xffFFABDE),
+      onPrimaryContainer: Color(0xff21005D),
+      secondary: Color(0xffFFD166),
+      onSecondary: Colors.black,
+      secondaryContainer: Color(0xffffFCD2),
+      onSecondaryContainer: Color(0xff422B08),
+      error: Color(0xffFF3B30),
+      onError: Colors.white,
+      errorContainer: Color(0xffFFDAD4),
+      onErrorContainer: Color(0xff410002),
+      background: Color(0xffFCF8FF),
+      onBackground: Color(0xff201A20),
+      surface: Color(0xffFEF2FE),
+      onSurface: Color(0xff201A20),
+      surfaceVariant: Color(0xffDBD5E0),
+      onSurfaceVariant: Color(0xff49454F),
+      outline: Color(0xff857E92),
+      outlineVariant: Color(0xff68606F),
+      shadow: Color(0xff000000),
+      scrim: Color(0xff000000),
+      inverseSurface: Color(0xff362F33),
+      onInverseSurface: Color(0xffFBF0F3),
+      inversePrimary: Color(0xff7FFFD4),
+      surfaceTint: Color(0xffFF80AB),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light().copyWith(
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          actionsIconTheme: IconThemeData(color: Colors.white),
-        ),
-      ),
+      theme: ThemeData(colorScheme: generatedScheme()),
       //for user error messafe
       //scaffoldMessengerKey: Utils.showSnackBar('text'),
       scaffoldMessengerKey: messengerkey,
       navigatorKey: navigatorkey,
       debugShowCheckedModeBanner: false,
       home: ChangeNotifierProvider(
-        create: ( context)=>FavouritesJob (),
+        create: (context) => FavouritesJob(),
         child: Scaffold(
           body: StreamBuilder<User?>(
               stream: FirebaseAuth.instance.authStateChanges(),
@@ -89,5 +117,3 @@ class JobsearchApp extends StatelessWidget {
     );
   }
 }
-
-

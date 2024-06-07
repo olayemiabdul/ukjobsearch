@@ -180,7 +180,7 @@ class _DescriptionPageState extends State<DescriptionPage> {
                                 provider
                                     .toggleFavourite(widget.jobDetails);
                               },
-                              icon: provider.likedjobs(widget.jobDetails)
+                              icon: provider.likedJobs(widget.jobDetails)
                                   ? const Icon(
                                 Icons.favorite,
                                 color: Colors.red,

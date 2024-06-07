@@ -96,14 +96,14 @@ class _CvJobDetailsPageState extends State<CvJobDetailsPage> {
                             Row(
                               children: [
                                 const Icon(Icons.location_on, color: Colors.deepOrange,),
-                                const SizedBox(width: 10,),
+                                const SizedBox(width: 2,),
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     widget.cvJobdetails.location.toString(),
                                     style: const TextStyle(
                                         fontFamily: 'Poppins-ExtraBold',
-                                        fontSize: 15,
+                                        fontSize: 10,
                                         color: Colors.deepOrange),
                                   ),
                                 ),

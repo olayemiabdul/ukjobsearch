@@ -62,16 +62,29 @@ class _CvSingleSearchState extends State<CvSingleSearch> {
     return  SafeArea(child: Scaffold(
       appBar: AppBar(
         //backgroundColor: Colors.black,
+        automaticallyImplyLeading: false,
+
         title: SizedBox(
           height: 40,
-          child: Row(
-            children: [
-              const Icon(
-                Icons.search,
-                color: Colors.black,
-              ),
-              Text(widget.cvjobName),
-            ],
+          child: Card(
+            margin: const EdgeInsets.all(1),
+            shape: const RoundedRectangleBorder(
+              side: BorderSide(color: Colors.white70, width: 1),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                  bottomLeft: Radius.circular(5),
+                  bottomRight: Radius.circular(5)),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.search,
+                  color: Colors.black,
+                ),
+                Text(widget.cvjobName),
+              ],
+            ),
           ),
         ),
       ),
@@ -97,7 +110,7 @@ class _CvSingleSearchState extends State<CvSingleSearch> {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
-                          height: 170,
+                          height: 220,
                           width: 120,
                           decoration: BoxDecoration(
                             borderRadius: const BorderRadius.only(

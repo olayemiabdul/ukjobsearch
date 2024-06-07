@@ -1,6 +1,7 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ukjobsearch/main.dart';
 import 'package:ukjobsearch/utils.dart';
 
@@ -15,6 +16,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
   @override
   void dispose() {
     emailController.dispose();
@@ -37,43 +39,46 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.black, fontSize: 20),
                 ),
-                TextFormField(
-                  // validator: (value) {
-                  //   if (value == null || value.isEmpty) {
-                  //     return 'Enter something';
-                  //   }
-                  //   return null;
-                  // },
-                  controller: emailController,
-                  cursorColor: Colors.white,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'enter your email',
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8,top: 8,left: 80,right: 80),
+                  child: TextFormField(
+
+
+                    controller: emailController,
+                    cursorColor: Colors.white,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+
+                        hintText: "Please Enter Your Email",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: const BorderSide(
+
+                            color: Color(0xFF000000),
+                            strokeAlign: BorderSide.strokeAlignInside,
+                          ),
+                        ),
+                        fillColor: Colors.purple.withOpacity(0.2),
+                        filled: true,
+                        prefixIcon: const Icon(Icons.mail, color: Colors.purple,)),
+                    obscureText: false,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (email) =>
+                        email != null && EmailValidator.validate(email)
+                            ? 'Enter your valid Email pls'
+                            : null,
                   ),
-                  obscureText: false,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (email) =>
-                      email != null && EmailValidator.validate(email)
-                          ? 'Enter your valid Email pls'
-                          : null,
                 ),
-                // TextFormField(
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Enter something';
-                //     }
-                //     return null;
-                //   },
-                // ),
+
                 ElevatedButton.icon(
                   onPressed: () {
-                    // if (formKey.currentState!.validate()) {
-                    //   ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(
-                    //       content: Text('Email can not be empty'),
-                    //     ),
-                    //   );
-                    // }
+                    if (formKey.currentState!.validate()) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Email can not be empty'),
+                        ),
+                      );
+                    }
                     resetPassowrd();
                   },
                   icon: const Icon(Icons.email_outlined),
@@ -92,10 +97,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         context: context,
         barrierDismissible: false,
         builder: (context) {
-          return const CircularProgressIndicator(
-            color: Colors.amber,
-            strokeWidth: 5,
-            value: 3.0,
+          return const SpinKitDoubleBounce(
+
+            color: Colors.green,
+            size: 60,
+            duration: Duration(seconds: 70),
+
+
+
           );
         });
     try {

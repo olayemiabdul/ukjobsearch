@@ -1,21 +1,23 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ukjobsearch/cvlibrary/cvjobFilteredSearch.dart';
 import 'package:ukjobsearch/cvlibrary/cvjobpage.dart';
-import 'package:ukjobsearch/screen/ReedFilteredJobscreen.dart';
-import 'package:ukjobsearch/authentication/longinscreen.dart';
-import 'package:ukjobsearch/authentication/signupscreen.dart';
 
-import 'package:ukjobsearch/screen/widget.dart';
+import 'package:ukjobsearch/authentication/authScreen.dart';
 
-class JobsearchScreen extends StatefulWidget {
-  const JobsearchScreen({super.key});
+import 'package:ukjobsearch/reed_jobs/widget.dart';
+
+class JobSearchScreen extends StatefulWidget {
+  const JobSearchScreen({super.key});
 
   @override
-  State<JobsearchScreen> createState() => _JobsearchScreenState();
+  State<JobSearchScreen> createState() => _JobSearchScreenState();
 }
 
-class _JobsearchScreenState extends State<JobsearchScreen> {
+class _JobSearchScreenState extends State<JobSearchScreen> {
   bool selected = false;
+  final user = FirebaseAuth.instance.currentUser;
 
 
   @override
@@ -28,22 +30,24 @@ class _JobsearchScreenState extends State<JobsearchScreen> {
           backgroundColor: Colors.green,
           automaticallyImplyLeading: false,
 
-          title: const Padding(
-            padding: EdgeInsets.only(right: 10),
-            child: Row(
-              children: [
-                Image(
-                  height: 25,
-                  width: 25,
-                  image: AssetImage(
-                    "assets/images/logo.png",
-                  ),
+          title: AnimatedTextKit(
+            animatedTexts: [
+              TypewriterAnimatedText(
+                'Tuned Jobs!',
+                textStyle: const TextStyle(
+                  fontSize: 32.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                SizedBox(width: 40),
-                Center(child: Text('Welcome to Fine Jobs', style: TextStyle(fontFamily: 'Poppins-ExtraBold'),)),
-              ],
-            ),
-          ),
+                speed: const Duration(milliseconds: 2000),
+              ),
+            ],
+
+            totalRepeatCount: 2,
+            pause: const Duration(milliseconds: 1000),
+            displayFullTextOnTap: true,
+            stopPauseOnTap: true,
+          )
         ),
         body: Container(
           height: MediaQuery.of(context).size.height,
@@ -62,10 +66,7 @@ class _JobsearchScreenState extends State<JobsearchScreen> {
           ),
           child: ListView(
             children: [
-              const SizedBox(
-                height: 12,
-              ),
-              Padding(
+              user!=null?   const Text(''):Padding(
                 padding: const EdgeInsets.only(left: 100),
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
@@ -113,9 +114,7 @@ class _JobsearchScreenState extends State<JobsearchScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => LoginPage(
-                                        clickSignup: () {},
-                                      ),
+                                      builder: (context) => const ProfileAuth(),
                                     ),
                                   );
                                 },
@@ -162,9 +161,7 @@ class _JobsearchScreenState extends State<JobsearchScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SignUpPage(
-                                clickSignin: () {},
-                              ),
+                              builder: (context) => const ProfileAuth(),
                             ),
                           );
                         },
@@ -183,7 +180,7 @@ class _JobsearchScreenState extends State<JobsearchScreen> {
                   color: Colors.green,
                   child: Column(children: [
                     const Text(
-                      'Find that desired dream Job and love Mondays',
+                      'Tuned Jobs! Grab the desired dream Job here',
                       style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'Poppins-ExtraBold',
@@ -255,7 +252,7 @@ class _JobsearchScreenState extends State<JobsearchScreen> {
                                     width: 15,
                                   ),
                                   Text(
-                                    'search that dream Job Today',
+                                    'search Jobs',
                                     style: TextStyle(
                                         fontSize: 18,
                                         color: Colors.white,
@@ -274,7 +271,7 @@ class _JobsearchScreenState extends State<JobsearchScreen> {
               Container(
                 color: Colors.white,
                 height: MediaQuery.of(context).size.height,
-                child: const MycvJob(),
+                child: const MyCvJob(),
               )
             ],
           ),

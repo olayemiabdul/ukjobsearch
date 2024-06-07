@@ -1,95 +1,80 @@
-// ignore_for_file: unnecessary_null_comparison
 
 import 'package:flutter/material.dart';
 import 'package:ukjobsearch/model/cvlibraryJob.dart';
 import 'package:ukjobsearch/model/jobdescription.dart';
 
-//provider class for cvlibrary
-// class CvFavouritesJob extends ChangeNotifier{
-//   List<Job> Cvfavouritejobs = [];
-//   List<Job> get CvApply => Cvfavouritejobs;
-//   CvtoggleFavourite(Job likedJob) {
-//     final isLiked = Cvfavouritejobs.contains(likedJob);
-//
-//     // isLiked != null
-//     //     ? favouritejobs.remove(likedJob)
-//     //     : favouritejobs.add(likedJob);
-//     if (isLiked) {
-//       Cvfavouritejobs.remove(likedJob);
-//     } else {
-//       Cvfavouritejobs.add(likedJob);
-//     }
-//     notifyListeners();
-//   }
-//   bool Cvlikedjobs(Job likedJob) {
-//     final isLiked = Cvfavouritejobs.contains(likedJob);
-//     return isLiked;
-//   }
-// }
-//provider class for reed.co.uk
-class FavouritesJob extends ChangeNotifier {
-  List<Result> favouritejobs = [];
-   List<Job> cvfavouritejobs = [];
 
-  List<Result> get olaye => favouritejobs;
-  List<Job> get cvApply => cvfavouritejobs;
+
+class FavouritesJob extends ChangeNotifier {
+  List<Result> favouriteJobs = [];
+   List<Job> cvFavouriteJobs = [];
+
+  List<Result> get reedJobs => favouriteJobs;
+  List<Job> get cvApply => cvFavouriteJobs;
 
   toggleFavourite(Result likedJob) {
-    final isLiked = favouritejobs.contains(likedJob);
+    final reedTLiked = favouriteJobs.contains(likedJob);
 
     // isLiked != null
     //     ? favouritejobs.remove(likedJob)
     //     : favouritejobs.add(likedJob);
-    if (isLiked) {
-      favouritejobs.remove(likedJob);
+    if (reedTLiked) {
+      favouriteJobs.remove(likedJob);
     } else {
-      favouritejobs.add(likedJob);
+      favouriteJobs.add(likedJob);
     }
     notifyListeners();
   }
 
-  cvtoggleFavourite(Job likedJob) {
-    final isLiked = cvfavouritejobs.contains(likedJob);
+  cvtoggleFavourite(Job cvlikedJob) {
+    final libraryLiked = cvFavouriteJobs.contains(cvlikedJob);
 
     // isLiked != null
     //     ? favouritejobs.remove(likedJob)
     //     : favouritejobs.add(likedJob);
-    if (isLiked) {
-      cvfavouritejobs.remove(likedJob);
+    if (libraryLiked) {
+      cvFavouriteJobs.remove(cvlikedJob);
     } else {
-      cvfavouritejobs.add(likedJob);
+      cvFavouriteJobs.add(cvlikedJob);
     }
     notifyListeners();
   }
 
-  bool likedjobs(Result likedJob) {
-    final isLiked = favouritejobs.contains(likedJob);
-    return isLiked;
+  bool likedJobs(Result rlikedJob) {
+    final reedIsLiked = favouriteJobs.contains(rlikedJob);
+
+    return reedIsLiked;
+
   }
- bool cvlikedjobs(Job likedJob) {
-    final isLiked = cvfavouritejobs.contains(likedJob);
-    return isLiked;
-  }
-  clearLikedJob(Result clear) {
-    favouritejobs.removeLast();
+ bool cvlikedjobs(Job clikedJob) {
+    final cvLiked = cvFavouriteJobs.contains(clikedJob);
+    return cvLiked;
     notifyListeners();
   }
-   cvClearLikedJob(Job clear) {
-    cvfavouritejobs.removeLast();
+  clearLikedJob(int clear) {
+    favouriteJobs.removeAt(clear);
     notifyListeners();
   }
-
-  appliedJob(Result applied) {
-
-    final isApplied = favouritejobs.indexed;
-    isApplied;
+   cvClearLikedJob(int clear) {
+    cvFavouriteJobs.removeAt(clear);
     notifyListeners();
   }
 
-  cvappliedJob(Job applied) {
-    // ignore: sdk_version_since
-    final isapplied = cvfavouritejobs.indexed;
-    isapplied;
+  // appliedJob(Result applied) {
+  //
+  //   final isApplied = favouriteJobs.indexed;
+  //   isApplied;
+  //   notifyListeners();
+  // }
+  //
+  // cvappliedJob(Job applied) {
+  //
+  //   final isapplied = cvFavouriteJobs.indexed;
+  //   isapplied;
+  //   notifyListeners();
+  // }
+  welcomeProfile(Widget profile ){
+    final isProfile=cvFavouriteJobs.indexed;
     notifyListeners();
   }
 }

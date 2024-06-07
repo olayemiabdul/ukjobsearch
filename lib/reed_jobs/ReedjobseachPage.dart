@@ -1,11 +1,10 @@
 
 import 'package:flutter/material.dart';
-import 'package:ukjobsearch/cvlibrary/cvjobpage.dart';
-import 'package:ukjobsearch/cvlibrary/cvjobFilteredSearch.dart';
+
 
 import 'package:ukjobsearch/model/networkservices.dart';
-import 'package:ukjobsearch/screen/ReedFilteredJobscreen.dart';
-import 'package:ukjobsearch/screen/widget.dart';
+import 'package:ukjobsearch/reed_jobs/ReedFilteredJobscreen.dart';
+import 'package:ukjobsearch/reed_jobs/widget.dart';
 
 class CvLibrarySearchPage extends StatefulWidget {
   const CvLibrarySearchPage({super.key});
@@ -27,6 +26,7 @@ class _CvLibrarySearchPageState extends State<CvLibrarySearchPage> {
     return Scaffold(
      
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         //backgroundColor: Colors.black,
         title: Container(
           color: Colors.white,

@@ -29,13 +29,16 @@ class ApiServices {
         final response = await http.get(Uri.parse(url1),
           headers: <String, String>{'authorization': basicAuth,  "Content-Type": "application/json",
 
+
+
+
           },
 
         );
         if (response.statusCode == 200) {
           Map<String, dynamic> json = jsonDecode(response.body);
           json['results'].forEach((element) {
-            if (abcJob.length < 30000) {
+            if (abcJob.length < 400000) {
               abcJob.add(Result.fromJson(element));
             }
           });
@@ -48,7 +51,7 @@ class ApiServices {
       } catch (e) {
         print('error is : $e');
       }
-      return [];
+      return abcJob;
 
 
     }else{
@@ -73,11 +76,11 @@ class ApiServices {
 
       //var data = jsonDecode(response.body).toList();
 
-      print(response.body);
+      //print(response.body);
       if (response.statusCode == 200) {
         Map<String, dynamic> json = jsonDecode(response.body);
         json['results'].forEach((element) {
-          if (abcJob.length < 30000) {
+          if (abcJob.length < 400000) {
             abcJob.add(Result.fromJson(element));
           }
         });
@@ -89,7 +92,7 @@ class ApiServices {
     } catch (e) {
       print('error is : $e');
     }
-    return [];
+    return abcJob;
     }
   }
 
@@ -104,9 +107,9 @@ class ApiServices {
     //for web platform
     if(kIsWeb){
       final String url =
-          'https://www.cv-library.co.uk/search-jobs-json?key=zkM61g6mb,9z-byL&q=job&perpage=25&offset=$offsetNumber&title=$cvtitle&geo=$cvlocation&description_limit=4000&applyurl';
+          'https://www.cv-library.co.uk/search-jobs-json?key=zkM61g6mb,9z-byL&q=job&perpage=25&offset=$offsetNumber&title=$cvtitle&geo=$cvlocation&description_limit=400&applyurl';
       final cvResponse = await http.get(Uri.parse(url));
-      print(cvResponse.body);
+      //print(cvResponse.body);
 
       if (cvResponse.statusCode == 200) {
         //var encodecvresponse = jsonEncode(cvResponse.body);
@@ -144,7 +147,7 @@ class ApiServices {
       }
       final cvResponse = await http.get(Uri.parse(url));
 
-      print(cvResponse.body);
+     // print(cvResponse.body);
 
       if (cvResponse.statusCode == 200) {
         //var encodecvresponse = jsonEncode(cvResponse.body);

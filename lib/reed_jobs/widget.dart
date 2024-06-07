@@ -2,13 +2,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukjobsearch/model/jobdescription.dart';
 import 'package:ukjobsearch/model/networkservices.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
-import 'package:ukjobsearch/screen/jobdecriptionpage.dart';
-import 'package:ukjobsearch/screen/ReedFilteredJobscreen.dart';
+import 'package:ukjobsearch/reed_jobs/jobdecriptionpage.dart';
+import 'package:ukjobsearch/reed_jobs/ReedFilteredJobscreen.dart';
+import 'package:ukjobsearch/screen/underConstruction.dart';
 
 import 'package:ukjobsearch/screen/welcomePage.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../settings/contactPage.dart';
+import '../screen/newUser.dart';
 
 class MyWidget extends StatefulWidget {
   const MyWidget({super.key});
@@ -118,7 +124,7 @@ class _MyWidgetState extends State<MyWidget> {
                               provider
                                   .toggleFavourite(jobApi.abcJob[index]);
                             },
-                            icon: provider.likedjobs(jobApi.abcJob[index])
+                            icon: provider.likedJobs(jobApi.abcJob[index])
                                 ? const Icon(
                                     Icons.favorite,
                                     color: Colors.red,
@@ -148,11 +154,45 @@ class _MyWidgetState extends State<MyWidget> {
     );
   }
 }
+void termsOfService() async{
+  // Implement navigation to Terms of Service page
+  const privacyUrl='https://doc-hosting.flycricket.io/tuned-jobs-terms-of-use/cd72c851-b405-4ef2-926d-d9f92e850b54/terms';
 
+  if (await canLaunch(privacyUrl)) {
+    await launch(privacyUrl);
+  } else {
+    throw 'Could not launch $privacyUrl';
+  }
+}
+
+privacyPolicy() async{
+  const termsUrl='https://doc-hosting.flycricket.io/tuned-jobs-privacy-policy/d8474bc1-13cf-4365-9c1d-1d60a9051883/privacy';
+  if (await canLaunch(termsUrl)) {
+    await launch(termsUrl);
+  } else {
+    throw 'Could not launch $termsUrl';
+  }
+
+}
 Future<void> signOutFromGoogle() async {
   final GoogleSignIn googleUser = GoogleSignIn();
   await googleUser.signOut();
   await FirebaseAuth.instance.signOut();
+}
+void signOutGoogle() async {
+  final GoogleSignIn googleUser = GoogleSignIn();
+  await googleUser.signOut();
+  await FirebaseAuth.instance.signOut();
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setBool('auth', false);
+
+  // uid = null;
+  // name = null;
+  // userEmail = null;
+  // imageUrl = null;
+
+  print("User signed out of Google account");
 }
 
 Drawer drawerNew(BuildContext context) {
@@ -167,11 +207,11 @@ Drawer drawerNew(BuildContext context) {
             color: Colors.green,
             image: DecorationImage(
               fit: BoxFit.fill,
-              image: AssetImage('assets/images/logo.png'),
+              image: AssetImage('assets/images/logo.jpg'),
             ),
           ),
           child: Text(
-            'Menu',
+            '',
             style: TextStyle(color: Colors.white, fontSize: 25),
           ),
         ),
@@ -181,38 +221,31 @@ Drawer drawerNew(BuildContext context) {
           onTap: () => {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SearchScreen1()),
+              MaterialPageRoute(builder: (context) => const UnderConstructionPage ()),
             ),
           },
         ),
         ListTile(
           leading: const Icon(Icons.verified_user),
           title: const Text('Terms and Conditions'),
-          onTap: () => {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const WelcomeHomeScreen(),
-              ),
-            ),
-          },
+          onTap: () => termsOfService(),
         ),
         ListTile(
           leading: const Icon(Icons.home),
           title: const Text('Privacy Policy'),
-          onTap: () => {
-            Navigator.of(context).pop(),
-          },
+          onTap: () => privacyPolicy(),
         ),
         ListTile(
           leading: const Icon(Icons.border_color),
           title: const Text('Contact Us'),
-          onTap: () => {Navigator.of(context).pop()},
+          onTap: () => {Navigator.push(context, MaterialPageRoute(builder:(context){
+             return const ContactUsPage();
+          }))},
         ),
         ListTile(
           leading: const Icon(Icons.exit_to_app),
           title: const Text('Logout'),
-          onTap: () => {signOutFromGoogle()},
+          onTap: () => {signOutGoogle() },
         ),
       ],
     ),

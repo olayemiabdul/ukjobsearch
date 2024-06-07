@@ -22,6 +22,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final passwordController = TextEditingController();
   final imageController = TextEditingController();
   bool isChecked = false;
+  bool selected = false;
   @override
   void dispose() {
     emailController.dispose();
@@ -32,190 +33,258 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          children: [
-            Form(
-              // form and textformfield is used to validate
-              key: formKey,
-              child: Column(children: [
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'First name',
-                    style: TextStyle(
-                      fontFamily: 'Poppins ExtraBold',
-                      fontSize: 20,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                Card(
-                  color: Colors.white,
-                  elevation: 0,
-                  //shadowColor: Colors.black,
-                  shape: Border.all(
-                    color: Colors.black,
-                    width: 1,
-                  ),
-                  child: TextFormField(
-                    controller: nameController,
-                    cursorColor: Colors.white,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                        //labelText: 'enter your Displayname',
-                        ),
-                    obscureText: false,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Last name',
-                    style: TextStyle(
-                      fontFamily: 'Poppins ExtraBold',
-                      fontSize: 20,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  color: Colors.white,
-                  elevation: 0,
-                  //shadowColor: Colors.black,
-                  shape: Border.all(
-                    color: Colors.black,
-                    width: 1,
-                  ),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.green,
 
-                  child: TextFormField(
-                    controller: lastnameController,
-                    cursorColor: Colors.white,
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                        //labelText: 'enter your Phonenumber',
-                        ),
-                    obscureText: false,
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    'Email-address',
-                    style: TextStyle(
-                      fontFamily: 'Poppins ExtraBold',
-                      fontSize: 20,
-                      color: Colors.black,
+      ),
+      body: SafeArea(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: ListView(
+            children: [
+              Row(
+               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SelectableButton(
+                    selected: selected,
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return Colors.white;
+                          }
+                          return null; // defer to the defaults
+                        },
+                      ),
+                      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return Colors.indigo;
+                          }
+                          return null; // defer to the defaults
+                        },
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  color: Colors.white,
-                  elevation: 0,
-                  //shadowColor: Colors.black,
-                  shape: Border.all(
-                    color: Colors.black,
-                    width: 1,
-                  ),
-                  child: TextFormField(
-                    controller: emailController,
-                    cursorColor: Colors.white,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                        //labelText: 'enter your email',
-                        ),
-                    obscureText: false,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (email) =>
-                        email != null && !EmailValidator.validate(email)
-                            ? 'Enter your Email pls'
-                            : null,
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    'Enter your password',
-                    style: TextStyle(
-                      fontFamily: 'Poppins ExtraBold',
-                      fontSize: 20,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  color: Colors.white,
-                  elevation: 0,
-                  //shadowColor: Colors.black,
-                  shape: Border.all(
-                    color: Colors.black,
-                    width: 1,
-                  ),
-                  child: TextFormField(
-                    controller: passwordController,
-                    cursorColor: Colors.white,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                        //labelText: 'enter your password',
-                        ),
-                    obscureText: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (passwordvalue) =>
-                        passwordvalue != null && passwordvalue.length < 6
-                            ? 'Enter atleast 6 characters'
-                            : null,
-                  ),
-                ),
-                Checkbox(
-                    value: isChecked,
-                    checkColor: Colors.white,
-                    onChanged: (bool? value) async {
+                    onPressed: () {
                       setState(() {
-                        value = isChecked;
+                        selected = !selected;
                       });
-                    }),
-                const Text('Show Password'),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    signUp();
-                  },
-                  icon: const Icon(Icons.lock_open),
-                  label: const Text('SignUp'),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: RichText(
-                      text: TextSpan(
-                          text: 'You already have an account ?',
-                          children: [
-                        TextSpan(
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = widget.clickSignin,
-                          text: 'Login',
-                        )
-                      ])),
-                )
-              ]),
-            ),
-          ],
+                    },
+                    child: const Text('Register'),
+                  ),
+                  const SizedBox(width: 10,),
+                  SelectableButton(
+                    selected: selected,
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return Colors.white;
+                          }
+                          return null; // defer to the defaults
+                        },
+                      ),
+                      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return Colors.pink;
+                          }
+                          return null; // defer to the defaults
+                        },
+                      ),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        selected = !selected;
+                      });
+                    },
+                    child: const Text('Sign In'),
+                  ),],
+              ),
+              Form(
+                // form and textformfield is used to validate
+                key: formKey,
+                child: Column(children: [
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'First name',
+                      style: TextStyle(
+                        fontFamily: 'Poppins ExtraBold',
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  Card(
+                    color: Colors.white,
+                    elevation: 0,
+                    //shadowColor: Colors.black,
+                    shape: Border.all(
+                      color: Colors.black,
+                      width: 1,
+                    ),
+                    child: TextFormField(
+                      controller: nameController,
+                      cursorColor: Colors.white,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                          //labelText: 'enter your Displayname',
+                          ),
+                      obscureText: false,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Last name',
+                      style: TextStyle(
+                        fontFamily: 'Poppins ExtraBold',
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Card(
+                    color: Colors.white,
+                    elevation: 0,
+                    //shadowColor: Colors.black,
+                    shape: Border.all(
+                      color: Colors.black,
+                      width: 1,
+                    ),
+
+                    child: TextFormField(
+                      controller: lastnameController,
+                      cursorColor: Colors.white,
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                          //labelText: 'enter your Phonenumber',
+                          ),
+                      obscureText: false,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      'Email-address',
+                      style: TextStyle(
+                        fontFamily: 'Poppins ExtraBold',
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Card(
+                    color: Colors.white,
+                    elevation: 0,
+                    //shadowColor: Colors.black,
+                    shape: Border.all(
+                      color: Colors.black,
+                      width: 1,
+                    ),
+                    child: TextFormField(
+                      controller: emailController,
+                      cursorColor: Colors.white,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                          //labelText: 'enter your email',
+                          ),
+                      obscureText: false,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (email) =>
+                          email != null && !EmailValidator.validate(email)
+                              ? 'Enter your Email pls'
+                              : null,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      'Enter your password',
+                      style: TextStyle(
+                        fontFamily: 'Poppins ExtraBold',
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Card(
+                    color: Colors.white,
+                    elevation: 0,
+                    //shadowColor: Colors.black,
+                    shape: Border.all(
+                      color: Colors.black,
+                      width: 1,
+                    ),
+                    child: TextFormField(
+                      controller: passwordController,
+                      cursorColor: Colors.white,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                          //labelText: 'enter your password',
+                          ),
+                      obscureText: true,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (passwordvalue) =>
+                          passwordvalue != null && passwordvalue.length < 6
+                              ? 'Enter atleast 6 characters'
+                              : null,
+                    ),
+                  ),
+                  Checkbox(
+                      value: isChecked,
+                      checkColor: Colors.white,
+                      onChanged: (bool? value) async {
+                        setState(() {
+                          value = isChecked;
+                        });
+                      }),
+                  const Text('Show Password'),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      signUp();
+                    },
+                    icon: const Icon(Icons.lock_open),
+                    label: const Text('SignUp'),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: RichText(
+                        text: TextSpan(
+                            text: 'You already have an account ?',
+                            children: [
+                          TextSpan(
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = widget.clickSignin,
+                            text: 'Login',
+                          )
+                        ])),
+                  )
+                ]),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -265,5 +334,51 @@ class _SignUpPageState extends State<SignUpPage> {
     }
     // navigatorkey to hide showDialog
     navigatorkey.currentState!.popUntil((route) => route.isFirst);
+  }
+}
+class SelectableButton extends StatefulWidget {
+  const SelectableButton({
+    super.key,
+    required this.selected,
+    this.style,
+    required this.onPressed,
+    required this.child,
+  });
+
+  final bool selected;
+  final ButtonStyle? style;
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  @override
+  State<SelectableButton> createState() => _SelectableButtonState();
+}
+
+class _SelectableButtonState extends State<SelectableButton> {
+  late final MaterialStatesController statesController;
+
+  @override
+  void initState() {
+    super.initState();
+    statesController = MaterialStatesController(
+        <MaterialState>{if (widget.selected) MaterialState.selected});
+  }
+
+  @override
+  void didUpdateWidget(SelectableButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selected != oldWidget.selected) {
+      statesController.update(MaterialState.selected, widget.selected);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      statesController: statesController,
+      style: widget.style,
+      onPressed: widget.onPressed,
+      child: widget.child,
+    );
   }
 }

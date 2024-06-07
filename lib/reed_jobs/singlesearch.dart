@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:ukjobsearch/model/jobdescription.dart';
 import 'package:ukjobsearch/model/networkservices.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
-import 'package:ukjobsearch/screen/jobdecriptionpage.dart';
+import 'package:ukjobsearch/reed_jobs/jobdecriptionpage.dart';
 
 class mySearch extends StatefulWidget {
   const mySearch({super.key, required this.jobName, required this.jobCity});
@@ -34,6 +34,7 @@ class _mySearchState extends State<mySearch> {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         //backgroundColor: Colors.black,
         title: SizedBox(
           height: 40,
@@ -47,16 +48,14 @@ class _mySearchState extends State<mySearch> {
                   bottomLeft: Radius.circular(5),
                   bottomRight: Radius.circular(5)),
             ),
-            child: Expanded(
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.search,
-                    color: Colors.black,
-                  ),
-                  Text(widget.jobName),
-                ],
-              ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.search,
+                  color: Colors.black,
+                ),
+                Text(widget.jobName),
+              ],
             ),
           ),
         ),
@@ -79,7 +78,7 @@ class _mySearchState extends State<mySearch> {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                        height: 170,
+                        height: 220,
                         width: 120,
                         decoration: BoxDecoration(
                           borderRadius: const BorderRadius.only(
@@ -160,7 +159,7 @@ class _mySearchState extends State<mySearch> {
                               onPressed: () {
                                 provider.toggleFavourite(jobApi.abcJob[index]);
                               },
-                              icon: provider.likedjobs(jobApi.abcJob[index])
+                              icon: provider.likedJobs(jobApi.abcJob[index])
                                   ? const Icon(
                                       Icons.favorite,
                                       color: Colors.red,

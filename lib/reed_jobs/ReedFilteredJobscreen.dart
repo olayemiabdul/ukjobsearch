@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:ukjobsearch/model/networkservices.dart';
-import 'package:ukjobsearch/screen/singlesearch.dart';
+import 'package:ukjobsearch/reed_jobs/singlesearch.dart';
 
 import '../provider/favouriteProvider.dart';
 

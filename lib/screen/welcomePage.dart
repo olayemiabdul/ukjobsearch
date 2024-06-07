@@ -1,18 +1,37 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
+
+
 import 'package:flutter/services.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
 
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:path_provider/path_provider.dart';
+
+
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+
+import 'package:ukjobsearch/cvlibrary/CvjobsearchHome.dart';
+import 'package:ukjobsearch/provider/favouriteProvider.dart';
+
+import 'package:ukjobsearch/utils.dart';
+
+import '../settings/contactPage.dart';
+import '../settings/setting_screen.dart';
+
+
+
 
 class WelcomeHomeScreen extends StatefulWidget {
   const WelcomeHomeScreen({Key? key}) : super(key: key);
@@ -28,56 +47,85 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
   bool isReady = false;
   String errorMessage = '';
   PlatformFile? pickedFiles;
+  Future<File?>? pickedPdfFile;
   UploadTask? uploadTask; // for file download
   PlatformFile? savedFile;
+  String linkUrl='';
   final user = FirebaseAuth.instance.currentUser;
+  var overlayController=OverlayPortalController();
 
-  //select file from folder
-  Future selectedFile() async {
-    final selected = await FilePicker.platform.pickFiles(
+
+
+
+  Future<File?> loadPdfFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/picked_pdf.pdf';
+
+    if (await File(filePath).exists()) {
+      return File(filePath);
+    }
+    return null;
+  }
+  Future<void> pickPdfFile() async {
+    final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'doc'],
+      allowedExtensions: ['pdf'],
     );
-    if (selected == null) return;
-    setState(() {
-      pickedFiles = selected.files.last;
-    });
+
+    if (result != null && result.files.single.path != null) {
+      final pickedFile = File(result.files.single.path!);
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/picked_pdf.pdf';
+
+      final savedFile = await pickedFile.copy(filePath);
+
+      setState(() {
+        pickedPdfFile = Future.value(savedFile);
+      });
+    }
   }
 
-  // Future saveFile() async {
-  //   final saveDoc = await FilePicker.platform.saveFile(
-  //     dialogTitle: 'Please select an output file:',
-  //     fileName: 'output-file.pdf',
-  //   );
-  //   if (saveDoc == null) return;
-  //   setState(() {
-  //     savedFile=saveDoc.
-  //   });
-  // }
+
 
   //upload to cloud storage
   Future uploadFile() async {
-    final path = 'mystorage/${pickedFiles!.path!}';
+    final path = 'storage/${pickedFiles!.name}';
     final newfile = File(pickedFiles!.path!);
     final reference = FirebaseStorage.instance.ref().child(path);
-    // reference.putFile(newfile);
-    uploadTask = reference.putFile(newfile);
+    //reference.putFile(newfile);
+    setState(() {
+      uploadTask = reference.putFile(newfile);
+    });
     final snapshot = await uploadTask!.whenComplete(() {});
     final linkDownload = await snapshot.ref.getDownloadURL();
-    print('Download link:$linkDownload');
+    print(linkDownload);
+    setState(() {
+      linkUrl=linkDownload;
+    });
+    return linkDownload;
+
+
   }
 
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadPdfFile();
 
+  }
+  shareApp(BuildContext context) {
+    Share.share('Check out this amazing app: https://play.google.com/store/apps/details?id=com.example.yourapp', // Replace with your app's Play Store URL
+        subject: 'Share Our App');
+  }
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<FavouritesJob>(context, listen: false);
     final user = FirebaseAuth.instance.currentUser;
-    var imageurl = user!.photoURL;
+    var imageUrl = user!.photoURL;
+
     DateTime selectedDate = DateTime.now();
-    Widget title = ListTile(
-      leading: const Icon(Icons.input),
-      title: const Text('HomePage'),
-      onTap: () => {},
-    );
+
     Widget item1 = ListTile(
       leading: const Icon(Icons.verified_user),
       title: const Text('Profile'),
@@ -86,12 +134,23 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
     Widget item2 = ListTile(
       leading: const Icon(Icons.settings),
       title: const Text('Settings'),
-      onTap: () => {Navigator.of(context).pop()},
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const ContactUsPage(),
+        ),
+      ),
     );
     Widget item3 = ListTile(
       leading: const Icon(Icons.border_color),
       title: const Text('Feedback'),
       onTap: () => {Navigator.of(context).pop()},
+    );
+    Widget title = ListTile(
+      leading: const Icon(Icons.input),
+      title: const Text('App info'),
+      onTap: () => {
+
+      },
     );
     Widget item4 = ListTile(
       leading: const Icon(Icons.exit_to_app),
@@ -99,312 +158,283 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
       onTap: () => {signOutFromGoogle()},
     );
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.green,
-          title: const Text(
-            'Profile',
-            style: TextStyle(color: Colors.black),
-          ),
-          actions: [
-            PopupMenuButton(
-                // color: Colors.white,
-                itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: title,
-                        child: title,
-                      ),
-                      PopupMenuItem(
-                        value: item1,
-                        child: item1,
-                      ),
-                      PopupMenuItem(
-                        value: item2,
-                        child: item2,
-                      ),
-                      PopupMenuItem(
-                        value: item3,
-                        child: item3,
-                      ),
-                      PopupMenuItem(
-                        value: item4,
-                        child: item4,
-                      )
-                    ])
-          ],
-        ),
-        body: ListView(
-          children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              //to shift edit container to left
-              padding: const EdgeInsets.only(left: 270),
 
-              child: InkWell(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10)),
-                    color: Colors.green,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
-                  ),
-                  height: 40,
-                  width: MediaQuery.of(context).size.width / 4,
-                  child: const Center(
-                      child: Text(
-                    'EDIT',
-                    style: TextStyle(color: Colors.white),
-                  )),
-                ),
-                onTap: () {
-                  //implement edit
-                },
+    return ChangeNotifierProvider<FavouritesJob>(
+      create: (BuildContext context) => FavouritesJob(),
+      builder: (context, child) {
+
+        return SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.green,
+              title: const Text(
+                'Profile',
+                style: TextStyle(color: Colors.black),
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              //gmail photo or upload photo
-              padding: const EdgeInsets.only(left: 20, bottom: 20),
-              child: Center(child: profilePhotoWidget(imageurl, user)),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Center(
-              child: Text(' Welcome',
-                  style: Theme.of(context).textTheme.headlineLarge),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30),
-              child: Row(
-                children: [
-                  const SizedBox(
-                    width: 1,
-                  ),
-                  nameWidget(user),
-                  const Text(''
-                      // user.displayName.toString(),
-                      // style: Theme.of(context).textTheme.headlineSmall,
+              // actions: [
+              //   PopupMenuButton(
+              //       // color: Colors.white,
+              //       itemBuilder: (context) => [
+              //             PopupMenuItem(
+              //               value: title,
+              //               child: title,
+              //             ),
+              //             PopupMenuItem(
+              //               value: item1,
+              //               child: item1,
+              //             ),
+              //             PopupMenuItem(
+              //               value: item2,
+              //               child: item2,
+              //             ),
+              //             PopupMenuItem(
+              //               value: item3,
+              //               child: item3,
+              //             ),
+              //             PopupMenuItem(
+              //               value: item4,
+              //               child: item4,
+              //             )
+              //           ])
+              // ],
+              actions: [
+
+                PopupMenuButton(
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 1,
+                      // row with 2 children
+                      child: ElevatedButton(
+                        onPressed: overlayController.toggle,
+                       child: OverlayPortal(
+                         controller: overlayController, overlayChildBuilder: (BuildContext context) {
+                           return Positioned(
+                             top: 250,
+                             right: 40,
+                             child: Container
+                               (
+                               decoration: const BoxDecoration(
+                                 color: Colors.cyan,
+                                 borderRadius: BorderRadius.all(Radius.circular(10))
+                               ),
+                               //color: Colors.green,
+                               height: 330,
+                               width: 300,
+                               child:  const Column(
+                                 children: [
+                                   // const SizedBox(height: 140,),
+                                   Padding(
+                                     padding: EdgeInsets.all(8.0),
+                                     child: Text('Welcome Tuned Jobs\nGrab your next desired dream Job here',
+                                     style: TextStyle(color: Colors.white),),
+                                   ),
+                                   Image(image: AssetImage('assets/images/logo.jpg', ), height: 180,width: 260,),
+                                   SizedBox(height: 2,),
+                                   Text('Version 1.0.1\nDeveloper:olayemi.abdullahi@gmail.com\n07407208778', style: TextStyle(
+                                     color: Colors.white
+                                   ),)
+                                 ],
+                               ),
+                             ),
+                           );
+                       },
+                         child: const Text('App Info'),
+                       ),
                       ),
-                  const SizedBox(
-                    width: 30,
-                  ),
-                  Text(
-                    "${selectedDate.year} - ${selectedDate.month} - ${selectedDate.day}",
-                    style: const TextStyle(
-                      fontFamily: 'Poppins Bold',
-                      fontSize: 14,
-                      color: Colors.amberAccent,
                     ),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            emailWidget(user),
-            const SizedBox(
-              height: 15,
-            ),
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: Colors.black,
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 8),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.bookmark_add_outlined,
-                    color: Colors.green,
-                    size: 40,
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 15),
-                    child: Text(
-                      'My Cv',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Poppins-Bold',
-                          fontSize: 14),
+                    PopupMenuItem(
+                      child: ElevatedButton(onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const  SettingsPageScreen(),
+                          ),
+                        );
+                      }, child: const Text('Settings'),)
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              height: 600,
-              width: double.infinity,
-              padding: const EdgeInsets.all(15),
-              margin: const EdgeInsets.only(left: 15, right: 15),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    topRight: Radius.circular(5),
-                    bottomLeft: Radius.circular(5),
-                    bottomRight: Radius.circular(5)),
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1,
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              shareApp(context);
+                            },
+                            icon: const Icon(Icons.share),
+                          ),
+                          const Text('share'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              child: Column(
-                children: [
-                  pickedFiles != null
-                      ? Expanded(
-                          child: Center(
-                            // child: Image.file(
-                            //   File(pickedFiles!.path!),
-                            //   height: 100,
-                            //   width: 100,
-                            //   fit: BoxFit.cover,
-                            // ),
-                            child: Container(
-                                child: PDFView(
-                                    filePath: pickedFiles?.path,
-                                    enableSwipe: true,
-                                    swipeHorizontal: true,
-                                    pageFling: false,
-                                    onRender: (pages) {
-                                      setState(() {
-                                        totalPages = pages!;
-                                        isReady = true;
-                                      });
-                                    },
-                                    onError: (error) {
-                                      print(error.toString());
-                                    },
-                                    onPageError: (page, error) {
-                                      print('$page: ${error.toString()}');
-                                    },
-                                    onViewCreated:
-                                        (PDFViewController pdfViewController) {
-                                      pdfViewController.getCurrentPage();
-                                    },
-                                    onPageChanged: (page, totalpages) {
-                                      print('page change: $page/$totalpages');
-                                    })),
-                          ),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(top: 240),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10)),
-                              color: Colors.green,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 1,
-                              ),
-                            ),
-                            height: 40,
-                            width: 210,
-                            child: InkWell(
-                              onTap: () {
-                                selectedFile();
-                              },
-                              child: const Center(
-                                  child: Text(
-                                'Select Cv',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                              )),
-                            ),
-                          ),
-                        ),
-                ],
-              ),
+              ],
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 79),
-              child: Row(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10)),
-                      color: Colors.green,
-                      border: Border.all(
-                        color: Colors.white,
+            body: Column(
+              children: [
+
+
+                Padding(
+                  //gmail photo or upload photo
+                  padding: const EdgeInsets.only(left: 20, bottom: 20),
+                  child: Center(child: profilePhotoWidget(imageUrl, user), ),
+                ),
+
+                const Center(
+                  child: Text(' Welcome Back',
+                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 30),
+                  child: Row(
+                    children: [
+                      const SizedBox(
                         width: 1,
                       ),
-                    ),
-                    height: 50,
-                    width: 150,
-                    child: InkWell(
-                      onTap: () {},
-                      child: const Center(
-                          child: Text(
-                        'Share Resume',
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      )),
-                    ),
+                      Center(child: nameWidget(user)),
+
+
+                      emailWidget(user),
+                    ],
                   ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10)),
-                      color: Colors.white,
-                      border: Border.all(
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+
+                const SizedBox(
+                  height: 15,
+                ),
+                const Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: Colors.black,
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(left: 8),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.bookmark_add_outlined,
                         color: Colors.green,
-                        width: 2,
+                        size: 40,
                       ),
-                    ),
-                    height: 40,
-                    width: 90,
-                    child: InkWell(
-                      onTap: () {
-                        uploadFile();
-                      },
-                      child: const Center(
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 15),
                         child: Text(
-                          'Upload',
-                          style: TextStyle(color: Colors.green, fontSize: 20),
+                          'My Cv',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'Poppins-Bold',
+                              fontSize: 14),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Expanded(
+
+                  child: FutureBuilder<File?>(
+                    future: loadPdfFile(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        return Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: SfPdfViewer.file(snapshot.data!),
+                        );
+                      } else {
+                        return const Center(child: Text('No PDF selected'));
+                      }
+                    },
+                  ),
+                ),
+                 ElevatedButton(
+                  onPressed: pickPdfFile,
+
+                  child: const Text('Update Cv'),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(left: 40),
+                //   child: Row(
+                //     children: [
+                //       Container(
+                //         decoration: BoxDecoration(
+                //           borderRadius: const BorderRadius.only(
+                //               topLeft: Radius.circular(10),
+                //               topRight: Radius.circular(10),
+                //               bottomLeft: Radius.circular(10),
+                //               bottomRight: Radius.circular(10)),
+                //           color: Colors.green,
+                //           border: Border.all(
+                //             color: Colors.white,
+                //             width: 1,
+                //           ),
+                //         ),
+                //         height: 50,
+                //         width: 150,
+                //         child: InkWell(
+                //           onTap: () {
+                //
+                //           },
+                //           child: const Center(
+                //               child: Text(
+                //             'Share Resume',
+                //             style: TextStyle(color: Colors.white, fontSize: 20),
+                //           )),
+                //         ),
+                //       ),
+                //       const SizedBox(
+                //         width: 5,
+                //       ),
+                //       Container(
+                //         decoration: BoxDecoration(
+                //           borderRadius: const BorderRadius.only(
+                //               topLeft: Radius.circular(10),
+                //               topRight: Radius.circular(10),
+                //               bottomLeft: Radius.circular(10),
+                //               bottomRight: Radius.circular(10)),
+                //           color: Colors.white,
+                //           border: Border.all(
+                //             color: Colors.green,
+                //             width: 2,
+                //           ),
+                //         ),
+                //         height: 50,
+                //         width: 150,
+                //         child: ElevatedButton(
+                //           onPressed: () =>uploadFile(), child: const   Center(
+                //           child: Text(
+                //             'Upload',
+                //             style:
+                //             TextStyle(color: Colors.green, fontSize: 20),
+                //           ),
+                //         ),
+                //
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                //
+                // ),
+
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -413,8 +443,8 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: imageurl != null
-            ? Image.network(user.photoURL.toString())
-            : const CircleAvatar(radius: 60, child: ProfileAvatar()),
+            ? Image.network(user.photoURL.toString(), height: 30,width: 30,)
+            :  const CircleAvatar(radius: 30, child:  ProfileAvatar()),
       );
     } catch (e) {
       return const Text('Check the connectivity');
@@ -499,94 +529,131 @@ class ProfileAvatar extends StatefulWidget {
 }
 
 class _ProfileAvatarState extends State<ProfileAvatar> {
-  File? image;
 
-  Future getNewImage(ImageSource source) async {
+  PlatformFile? pickedFiles;
+
+
+  UploadTask? uploadTask;
+
+  Utils utils = Utils();
+
+
+  Uint8List? profileImage;
+
+
+
+  Future saveProfileImage() async {
+    String msg = await saveData(
+      file: profileImage!,  );
+    return msg;
+  }
+
+  Future selectImageGallery() async {
+    Uint8List myImage = await utils.pickMyImage(ImageSource.gallery);
+    setState(() {
+      profileImage = myImage;
+    });
+  }
+  Future selectImageCamera() async {
+    Uint8List myImage = await utils.pickMyImage(ImageSource.camera);
+    setState(() {
+      profileImage = myImage;
+    });
+  }
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
+  Future<String> uploadImageToStorage(String childName, Uint8List file) async {
+    Reference ref = storage.ref().child(childName).child('id');
+    UploadTask uploadTask = ref.putData(file);
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
+  }
+
+  Future<String> saveData(
+
+  {
+  required Uint8List file}
+        ) async {
+    String msg = 'Some error occur';
     try {
-      final image = await ImagePicker().pickImage(source: source);
-      if (image == null) return;
+      if (file!=null) {
+        String myImageUrl = await uploadImageToStorage('mystorage', file);
 
-      //final imageTemp = File(image.path); for temporary image upload
-      final imagePer = await saveImageProfile(image.path);
-      setState(() {
-        this.image = imagePer;
-      });
-    } on PlatformException catch (e) {
-      print('failed to picke image:$e');
+        await firestore
+            .collection('userProfile')
+            .add({ 'imageLink': myImageUrl});
+        msg = 'success';
+      }
+    } catch (error) {
+      msg = error.toString();
     }
+    return msg;
   }
 
-  Future<File> saveImageProfile(String imagepath) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final name = basename(imagepath);
-    final image = File('${directory.path}/$name');
-    return File(imagepath).copy(image.path);
-  }
-
-  Future uploadImage(BuildContext context) async {
-    if (Platform.isIOS) {
-      return showCupertinoModalPopup(
-        context: context,
-        builder: (context) => CupertinoActionSheet(
-          actions: [
-            CupertinoActionSheetAction(
-                onPressed: () =>
-                    Navigator.of(context).pop(getNewImage(ImageSource.camera)),
-                child: const Text('Camera')),
-            CupertinoActionSheetAction(
-                onPressed: () =>
-                    Navigator.of(context).pop(getNewImage(ImageSource.gallery)),
-                child: const Text('Gallery'))
-          ],
-        ),
-      );
-    } else if (Platform.isAndroid) {
-      return andriodModalBottomSheet(context);
-    } else if (Platform.isWindows) {
-      return andriodModalBottomSheet(context);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CircleAvatar(
-        foregroundColor: Colors.white,
-        radius: 60,
-        child: Stack(
-          children: [
-            ClipOval(
-                child: image != null
-                    ? Image.file(
-                        image!,
-                        width: 300,
-                        height: 100,
-                        fit: BoxFit.fill,
-                      )
-                    : const Image(
-                        image: AssetImage(
-                          'assets/images/profile.png',
+    return  Scaffold(
+
+      body: Column(
+        children: [
+          CircleAvatar(
+            foregroundColor: Colors.white,
+            radius: 60,
+            child: Stack(
+              children: [
+                ClipOval(
+                     child:  profileImage!=null
+                         ?
+                    Image(image: MemoryImage(profileImage!))
+                         : const Image(
+                       image: AssetImage(
+                         'assets/images/profile.png',
+                       ),
+                       width: 180,
+                       height: 170,
+                     ),
+
+                 ),
+
+
+                Positioned(
+                  //top: 40,
+                  bottom: 20,
+                  left: 80,
+                  child: Column(
+                    children: [
+                      InkWell(
+                        onTap: (){
+                          andriodModalBottomSheet(context);
+                          saveProfileImage();
+
+
+
+
+
+                        },
+                          // selectedFile();
+
+                        child: const FaIcon(
+                          FontAwesomeIcons.camera,
+                          color: Color(0xffffb702),
+                          size: 25,
                         ),
-                        width: 180,
-                        height: 170,
-                      )),
-            Positioned(
-              //top: 40,
-              bottom: 20,
-              left: 80,
-              child: InkWell(
-                onTap: () {
-                  uploadImage(context);
-                },
-                child: const FaIcon(
-                  FontAwesomeIcons.camera,
-                  color: Color(0xffffb702),
-                  size: 25,
+                      ),
+
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+
+
+        ],
       ),
     );
   }
@@ -604,8 +671,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           // ),
           // SizedBox(height: 5,),
           ElevatedButton.icon(
-              onPressed: () =>
-                  Navigator.of(context).pop(getNewImage(ImageSource.camera)),
+              onPressed: () =>selectImageCamera() ,
               icon: const FaIcon(
                 FontAwesomeIcons.camera,
               ),
@@ -617,12 +683,23 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           // ),
           ElevatedButton.icon(
               onPressed: () =>
-                  Navigator.of(context).pop(getNewImage(ImageSource.gallery)),
+                  selectImageGallery() ,
+
+
               icon: const Icon(Icons.image_outlined),
               label: const Text('Gallery'))
         ],
       ),
     );
   }
+
 }
+
+
+
+
+
+
+
+
 

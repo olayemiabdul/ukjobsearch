@@ -1,24 +1,25 @@
 {
   "project_info": {
     "project_number": "1063846392894",
+    "firebase_url": "https://uk-job-search-default-rtdb.firebaseio.com",
     "project_id": "uk-job-search",
     "storage_bucket": "uk-job-search.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1063846392894:android:c279345ab8aee9fe87cd6f",
+        "mobilesdk_app_id": "1:1063846392894:android:20cb3edfe59e18cf87cd6f",
         "android_client_info": {
-          "package_name": "com.example.ukjobsearch"
+          "package_name": "com.tunedjobs.ukjobsearch"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1063846392894-he5ekm8geboseb5ha6m5th1qqnnff712.apps.googleusercontent.com",
+          "client_id": "1063846392894-bker3rk09v9jroutajfq3eejan3e498r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.ukjobsearch",
-            "certificate_hash": "c4b52499b7cf76c650f593922cbbc04d9f1cb485"
+            "package_name": "com.tunedjobs.ukjobsearch",
+            "certificate_hash": "c865e2fadcb077f546e6e91b25adbe0884aedd3b"
           }
         },
         {
