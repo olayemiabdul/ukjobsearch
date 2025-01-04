@@ -14,7 +14,7 @@ import 'package:ukjobsearch/authentication/forgotpassword.dart';
 
 import 'package:ukjobsearch/authentication/phonelogin.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
-import 'package:ukjobsearch/screen/bottomNav.dart';
+import 'package:ukjobsearch/refactored%20code/bottomNav.dart';
 import 'package:ukjobsearch/utils.dart';
 
 final formKey = GlobalKey<FormState>();

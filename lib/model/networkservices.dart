@@ -10,9 +10,9 @@ import 'package:ukjobsearch/model/jobdescription.dart';
 import 'package:ukjobsearch/model/cvlibraryJob.dart';
 
 class ApiServices {
-  List<Result> abcJob = [];
+  List<ReedResult> abcJob = [];
 
-  Future<List<Result>> getFilesApi(String title, String town) async {
+  Future<List<ReedResult>> getFilesApi(String title, String town) async {
     String Username = 'd9b1179f-f620-4742-a5cc-ece469c24d00';
     String Password = '';
 
@@ -39,7 +39,7 @@ class ApiServices {
           Map<String, dynamic> json = jsonDecode(response.body);
           json['results'].forEach((element) {
             if (abcJob.length < 400000) {
-              abcJob.add(Result.fromJson(element));
+              abcJob.add(ReedResult.fromJson(element));
             }
           });
 
@@ -81,7 +81,7 @@ class ApiServices {
         Map<String, dynamic> json = jsonDecode(response.body);
         json['results'].forEach((element) {
           if (abcJob.length < 400000) {
-            abcJob.add(Result.fromJson(element));
+            abcJob.add(ReedResult.fromJson(element));
           }
         });
 
@@ -96,14 +96,14 @@ class ApiServices {
     }
   }
 
-  List<Job> cvlibraryjob = [];
+  List<CvJobs> cvlibraryjob = [];
   bool isRefresh = false;
 
   int offsetNumber =
       0; //must be 0 because search using jobtitle and location might return zero or less than 25 jobs
   int totalPage = 400000;
 
-  Future<List<Job>> getCvLibraryJob(String cvtitle, String cvlocation) async {
+  Future<List<CvJobs>> getCvLibraryJob(String cvtitle, String cvlocation) async {
     //for web platform
     if(kIsWeb){
       final String url =
@@ -120,7 +120,7 @@ class ApiServices {
         json['jobs'].forEach((element) {
           // ignore: unnecessary_null_comparison
           if (cvlibraryjob.length < 400000) {
-            cvlibraryjob.add(Job.fromJson(element));
+            cvlibraryjob.add(CvJobs.fromJson(element));
             offsetNumber + 25;
             //cvlibraryjob = <Job>[];
           }
@@ -158,7 +158,7 @@ class ApiServices {
         json['jobs'].forEach((element) {
           // ignore: unnecessary_null_comparison
           if (cvlibraryjob.length < 400000) {
-            cvlibraryjob.add(Job.fromJson(element));
+            cvlibraryjob.add(CvJobs.fromJson(element));
             offsetNumber + 25;
             //cvlibraryjob = <Job>[];
           }

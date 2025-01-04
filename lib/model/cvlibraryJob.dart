@@ -1,16 +1,16 @@
-class CvlibraryJob {
-    CvlibraryJob({
+class CvLibraryJob {
+    CvLibraryJob({
         required this.totalEntries,
         required this.jobs,
     });
 
     final int? totalEntries;
-    final List<Job> jobs;
+    final List<CvJobs> jobs;
 
-    factory CvlibraryJob.fromJson(Map<String, dynamic> json){ 
-        return CvlibraryJob(
+    factory CvLibraryJob.fromJson(Map<String, dynamic> json){
+        return CvLibraryJob(
             totalEntries: json["total_entries"],
-            jobs: json["jobs"] == null ? [] : List<Job>.from(json["jobs"]!.map((x) => Job.fromJson(x))),
+            jobs: json["jobs"] == null ? [] : List<CvJobs>.from(json["jobs"]!.map((x) => CvJobs.fromJson(x))),
         );
     }
 
@@ -21,8 +21,8 @@ class CvlibraryJob {
 
 }
 
-class Job {
-    Job({
+class CvJobs {
+    CvJobs({
         required this.agency,
         required this.location,
         required this.hlTitle,
@@ -50,8 +50,8 @@ class Job {
     final DateTime? posted;
     final List<String> type;
 
-    factory Job.fromJson(Map<String, dynamic> json){ 
-        return Job(
+    factory CvJobs.fromJson(Map<String, dynamic> json){
+        return CvJobs(
             agency: json["agency"] == null ? null : Agency.fromJson(json["agency"]),
             location: json["location"],
             hlTitle: json["hl_title"],

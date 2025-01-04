@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
 import 'package:ukjobsearch/authentication/authourity.dart';
@@ -20,9 +22,21 @@ class MyHttpOverrides extends HttpOverrides {
           (X509Certificate cert, String host, int port) => true;
   }
 }
+Future<void> initializeFirebase() async {
+  await Firebase.initializeApp();
+
+  // Initialize App Check
+  await FirebaseAppCheck.instance.activate(
+    // Use debug provider for development
+    webProvider: ReCaptchaV3Provider('abdullahi'),
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.debug,
+  );
+}
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeFirebase();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -40,6 +54,11 @@ Future main() async {
     // appId: "1:1063846392894:web:efba2a0f0a8fffb587cd6f"),
   );
   HttpOverrides.global = MyHttpOverrides();
+  //statusbar color
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF7FFFD4),
+      statusBarIconBrightness: Brightness.light,
+  ));
   runApp(const JobsearchApp());
 }
 
@@ -82,38 +101,41 @@ class JobsearchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(colorScheme: generatedScheme()),
-      //for user error messafe
-      //scaffoldMessengerKey: Utils.showSnackBar('text'),
-      scaffoldMessengerKey: messengerkey,
-      navigatorKey: navigatorkey,
-      debugShowCheckedModeBanner: false,
-      home: ChangeNotifierProvider(
-        create: (context) => FavouritesJob(),
-        child: Scaffold(
-          body: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                      child: SizedBox(
-                    height: 5,
-                    width: 5,
-                    child: CircularProgressIndicator(
-                      color: Colors.blueAccent,
-                    ),
-                  ));
-                } else if (snapshot.hasError) {
-                  return const Center(child: Text('Something went wrong'));
-                } else if (snapshot.hasData) {
-                  return const EmailVerificationPage();
-                } else {
-                  return const myAuthPage();
-                }
-              }),
-        ),
-      ),
+    return ChangeNotifierProvider(
+      create: (BuildContext context)=>FavouritesJob(),
+      builder: (context, child){
+        return  MaterialApp(
+          theme: ThemeData(colorScheme: generatedScheme()),
+          //for user error messafe
+          //scaffoldMessengerKey: Utils.showSnackBar('text'),
+          scaffoldMessengerKey: messengerkey,
+          navigatorKey: navigatorkey,
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+            body: StreamBuilder<User?>(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                        child: SizedBox(
+                          height: 5,
+                          width: 5,
+                          child: CircularProgressIndicator(
+                            color: Colors.blueAccent,
+                          ),
+                        ));
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text('Something went wrong'));
+                  } else if (snapshot.hasData) {
+                    return const EmailVerificationPage();
+                  } else {
+                    return const myAuthPage();
+                  }
+                }),
+          ),
+        );
+      },
+
     );
   }
 }

@@ -65,9 +65,9 @@ class _mySearchState extends State<mySearch> {
         child: FutureBuilder(
           future: jobApi.getFilesApi(widget.jobName, widget.jobCity),
           builder:
-              (BuildContext context, AsyncSnapshot<List<Result>> snapshot) {
+              (BuildContext context, AsyncSnapshot<List<ReedResult>> snapshot) {
             if (snapshot.hasData) {
-              List<Result> olayemi = snapshot.data!;
+              List<ReedResult> olayemi = snapshot.data!;
               final provider = Provider.of<FavouritesJob>(context);
               return ListView.builder(
                   scrollDirection: Axis.vertical,

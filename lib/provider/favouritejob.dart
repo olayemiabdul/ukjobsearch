@@ -42,7 +42,7 @@ class _SavedJobState extends State<SavedJob> {
             future: jobApi.getFilesApi(
                 jobTitleController.text, cityController.text),
             builder:
-                (BuildContext context, AsyncSnapshot<List<Result>> snapshot) {
+                (BuildContext context, AsyncSnapshot<List<ReedResult>> snapshot) {
               if (snapshot.hasData) {
                 // List<Result> reed = snapshot.data!;
                 final provider = Provider.of<FavouritesJob>(context);
@@ -194,7 +194,7 @@ class _FavouriteCvJobState extends State<FavouriteCvJob> {
               child: FutureBuilder(
                 future: jobApi.getCvLibraryJob(cvTitleController.text, cvCityController.text),
                 builder:
-                    (BuildContext context, AsyncSnapshot<List<Job>> snapshot) {
+                    (BuildContext context, AsyncSnapshot<List<CvJobs>> snapshot) {
                   if (snapshot.hasData) {
 
                     final provider = Provider.of<FavouritesJob>(context);

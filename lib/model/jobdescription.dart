@@ -3,11 +3,11 @@ class ReedJob {
         required this.results,
     });
 
-    final List<Result> results;
+    final List<ReedResult> results;
 
     factory ReedJob.fromJson(Map<String, dynamic> json){ 
         return ReedJob(
-            results: json["results"] == null ? [] : List<Result>.from(json["results"]!.map((x) => Result.fromJson(x))),
+            results: json["results"] == null ? [] : List<ReedResult>.from(json["results"]!.map((x) => ReedResult.fromJson(x))),
         );
     }
 
@@ -15,8 +15,8 @@ class ReedJob {
 
 }
 
-class Result {
-    Result({
+class ReedResult {
+    ReedResult({
         required this.jobId,
         required this.employerId,
         required this.employerName,
@@ -50,8 +50,8 @@ class Result {
     final int? applications;
     final String? jobUrl;
 
-    factory Result.fromJson(Map<String, dynamic> json){ 
-        return Result(
+    factory ReedResult.fromJson(Map<String, dynamic> json){
+        return ReedResult(
             jobId: json["jobId"],
             employerId: json["employerId"],
             employerName: json["employerName"],

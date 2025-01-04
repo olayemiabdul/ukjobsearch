@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class DescriptionPage extends StatefulWidget {
   const DescriptionPage({super.key, required this.jobDetails});
-  final Result jobDetails;
+  final ReedResult jobDetails;
 
   @override
   State<DescriptionPage> createState() => _DescriptionPageState();

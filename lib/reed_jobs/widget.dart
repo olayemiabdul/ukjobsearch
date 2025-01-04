@@ -10,7 +10,7 @@ import 'package:ukjobsearch/reed_jobs/jobdecriptionpage.dart';
 import 'package:ukjobsearch/reed_jobs/ReedFilteredJobscreen.dart';
 import 'package:ukjobsearch/screen/underConstruction.dart';
 
-import 'package:ukjobsearch/screen/welcomePage.dart';
+import 'package:ukjobsearch/refactored%20code/job_alert/welcomePage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../settings/contactPage.dart';
@@ -46,9 +46,9 @@ class _MyWidgetState extends State<MyWidget> {
       child: FutureBuilder(
         future:
             jobApi.getFilesApi(jobTitleController.text, cityController.text),
-        builder: (BuildContext context, AsyncSnapshot<List<Result>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<List<ReedResult>> snapshot) {
           if (snapshot.hasData) {
-            final List<Result> ola = snapshot.data!;
+            final List<ReedResult> ola = snapshot.data!;
             final provider = Provider.of<FavouritesJob>(context);
 
             return ListView.builder(

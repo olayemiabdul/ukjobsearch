@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ukjobsearch/screen/bottomNav.dart';
+import 'package:ukjobsearch/refactored%20code/bottomNav.dart';
 import 'package:ukjobsearch/utils.dart';
 
 class EmailVerificationPage extends StatefulWidget {

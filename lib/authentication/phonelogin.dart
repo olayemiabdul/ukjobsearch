@@ -12,8 +12,8 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import 'package:ukjobsearch/main.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
-import 'package:ukjobsearch/screen/bottomNav.dart';
-import 'package:ukjobsearch/screen/welcomePage.dart';
+import 'package:ukjobsearch/refactored%20code/bottomNav.dart';
+import 'package:ukjobsearch/refactored%20code/job_alert/welcomePage.dart';
 
 import 'authScreen.dart';
 

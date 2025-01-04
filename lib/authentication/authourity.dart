@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ukjobsearch/authentication/longinscreen.dart';
 import 'package:ukjobsearch/authentication/signupscreen.dart';
 
-import '../screen/firstPage.dart';
+import '../refactored code/firstPage.dart';
 
 class myAuthPage extends StatefulWidget {
   const myAuthPage({super.key});

@@ -304,10 +304,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
     navigatorkey.currentState!.popUntil((route) => route.isFirst);
   }
 
+  // Future signInWithGoogle() async {
+  //   // Trigger the authentication flow for android
+  //   final GoogleSignIn googleSignIn = GoogleSignIn(
+  //     clientId: const String.fromEnvironment('GOOGLE_CLIENT_ID'),
+  //   );
+  //   final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+  //
+  //   // Obtain the auth details from the request
+  //   if (googleUser != null) {
+  //     final GoogleSignInAuthentication googleAuth =
+  //     await googleUser.authentication;
+  //
+  //     // Create a new credential
+  //     final credential = GoogleAuthProvider.credential(
+  //       accessToken: googleAuth.accessToken,
+  //       idToken: googleAuth.idToken,
+  //     );
+  //
+  //     // Once signed in, return the UserCredential
+  //     UserCredential result =
+  //     await FirebaseAuth.instance.signInWithCredential(credential);
+  //     //  User? user = result.user;
+  //     // if (user != null) {
+  //     //   Navigator.push(
+  //     //       context,
+  //     //       MaterialPageRoute(
+  //     //         builder: (context) => const myNewBar(),
+  //     //       ));
+  //     // }
+  //   }
+  //
+  // }
   Future signInWithGoogle() async {
     // Trigger the authentication flow for android
     final GoogleSignIn googleSignIn = GoogleSignIn(
-      clientId: const String.fromEnvironment('GOOGLE_CLIENT_ID'),
+      clientId: "1063846392894-bker3rk09v9jroutajfq3eejan3e498r.apps.googleusercontent.com",
+      scopes: <String>[
+        'email',
+
+      ],
+
     );
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
@@ -325,16 +362,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       // Once signed in, return the UserCredential
       UserCredential result =
       await FirebaseAuth.instance.signInWithCredential(credential);
-      //  User? user = result.user;
-      // if (user != null) {
-      //   Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //         builder: (context) => const myNewBar(),
-      //       ));
-      // }
-    }
 
+    }
+    //pop to the first page
+    navigatorkey.currentState!.popUntil((route) => route.isFirst);
   }
 
   Future<User?> signInWithGoogleWeb() async {

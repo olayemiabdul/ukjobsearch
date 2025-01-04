@@ -1,281 +1,207 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ukjobsearch/cvlibrary/cvjobFilteredSearch.dart';
-import 'package:ukjobsearch/cvlibrary/cvjobpage.dart';
-
+import 'package:provider/provider.dart';
 import 'package:ukjobsearch/authentication/authScreen.dart';
+import 'package:ukjobsearch/cvlibrary/cvJobdescription.dart';
+import 'package:ukjobsearch/cvlibrary/cvjobFilteredSearch.dart';
+import 'package:ukjobsearch/cvlibrary/cvjobSingleSearch.dart';
+import 'package:ukjobsearch/model/cvlibraryJob.dart';
+import 'package:ukjobsearch/model/networkservices.dart';
+import 'package:ukjobsearch/provider/favouriteProvider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import 'package:ukjobsearch/reed_jobs/widget.dart';
+import 'cvjobpage.dart';
 
-class JobSearchScreen extends StatefulWidget {
-  const JobSearchScreen({super.key});
+class CvLibraryJobSearchScreen extends StatefulWidget {
+  const CvLibraryJobSearchScreen({super.key});
 
   @override
-  State<JobSearchScreen> createState() => _JobSearchScreenState();
+  State<CvLibraryJobSearchScreen> createState() => _CvLibraryJobSearchScreenState();
 }
 
-class _JobSearchScreenState extends State<JobSearchScreen> {
-  bool selected = false;
+class _CvLibraryJobSearchScreenState extends State<CvLibraryJobSearchScreen> {
   final user = FirebaseAuth.instance.currentUser;
+  final cityController = TextEditingController();
 
+  final jobTitleController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        endDrawer: drawerNew(context),
-        //bottomNavigationBar: BottomAppBar(child: myNewBar (), height: 105),
         appBar: AppBar(
           backgroundColor: Colors.green,
-          automaticallyImplyLeading: false,
-
-          title: AnimatedTextKit(
-            animatedTexts: [
-              TypewriterAnimatedText(
-                'Tuned Jobs!',
-                textStyle: const TextStyle(
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                speed: const Duration(milliseconds: 2000),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedTextKit(
+                animatedTexts: [
+                  TypewriterAnimatedText(
+                    'Tuned Jobs',
+                    textStyle: const TextStyle(
+                      fontSize: 28.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    speed: const Duration(milliseconds: 200),
+                  ),
+                ],
+                totalRepeatCount: 1,
+                displayFullTextOnTap: true,
+                stopPauseOnTap: true,
               ),
+              const SizedBox(width: 10),
+              const Icon(Icons.work, color: Colors.white),
             ],
-
-            totalRepeatCount: 2,
-            pause: const Duration(milliseconds: 1000),
-            displayFullTextOnTap: true,
-            stopPauseOnTap: true,
-          )
+          ),
+          centerTitle: true,
         ),
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10),
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10)),
-            color: Colors.white,
-            border: Border.all(
-              color: Colors.green,
-              width: 1,
+        endDrawer: buildDrawer(context),
+        body: Column(
+          children: [
+            buildWelcomeSection(context),
+            buildSearchSection(),
+            const Expanded(child:  MyCvJob()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(color: Colors.green),
+            child: Text(
+              'Tuned Jobs',
+              style: TextStyle(color: Colors.white, fontSize: 24),
             ),
           ),
-          child: ListView(
-            children: [
-              user!=null?   const Text(''):Padding(
-                padding: const EdgeInsets.only(left: 100),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        child: AnimatedContainer(
-                          duration: const Duration(seconds: 10),
-                          curve: Curves.fastOutSlowIn,
-                          width: selected ? 100.0 : 120.0,
-                          height: selected ? 100.0 : 80.0,
-                          //color: selected ? Colors.blueGrey : Colors.white,
-                          alignment: selected
-                              ? Alignment.center
-                              : AlignmentDirectional.topCenter,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
-                                bottomRight: Radius.circular(10)),
-                            color: Colors.white,
-                            border: Border.all(
-                              color: Colors.greenAccent,
-                              width: 2,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.add,
-                                size: 20,
-                                color: Colors.black,
-                              ),
-                              TextButton(
-                                child: const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 24),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    selected = !selected;
-                                  });
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const ProfileAuth(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      InkWell(
-                        child: Container(
-                          width: 120,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
-                                bottomRight: Radius.circular(10)),
-                            color: Colors.green,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 2,
-                            ),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(
-                                Icons.person,
-                                size: 20,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ProfileAuth(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Profile'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildWelcomeSection(BuildContext context) {
+    return Container(
+      color: Colors.green[100],
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnimatedTextKit(
+
+            animatedTexts: [
+              TyperAnimatedText(
+                user != null
+                    ? 'Welcome, ${user?.displayName ?? 'User'}!'
+                    : 'Welcome to Tuned Jobs!',
+                textStyle: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+
+          ),
+          const SizedBox(height: 8),
+          const Hero(
+            tag: '',
+            child: Text(
+              'Discover your dream job with ease.',
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Center(
+
+          ),
+        ],
+      ),
+    );
+  }
+  Widget buildSearchSection() {
+    bool isLoading;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.green[50],
+      child: Column(
+        children: [
+          TextField(
+            controller: jobTitleController,
+
+            decoration: InputDecoration(
+              hintText: 'Job Title',
+              prefixIcon: const Icon(Icons.work, color: Colors.green),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: cityController,
+            decoration: InputDecoration(
+              hintText: 'Location',
+              prefixIcon: const Icon(Icons.location_on, color: Colors.green),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: (){
+              final provider =
+              Provider.of<FavouritesJob>(context, listen: false);
+              //navigate to singlesearch page provider
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChangeNotifierProvider.value(
+                    value: provider,
+                    child:CvSingleSearch(cvjobName: jobTitleController.text, cvJobLocation: cityController.text,),
                   ),
                 ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 20, left: 20),
-                child: Container(
-                  //bigger container
-                  height: 150,
-                  width: MediaQuery.of(context).size.width,
-                  //color: const Color(0xff969FA6),
-                  color: Colors.green,
-                  child: Column(children: [
-                    const Text(
-                      'Tuned Jobs! Grab the desired dream Job here',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Poppins-ExtraBold',
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    const Text('Jobs, employment & career development',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Poppins-ExtraBold',
-                          fontSize: 14,
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Container(
-                      width: 300,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15),
-                            bottomLeft: Radius.circular(15),
-                            bottomRight: Radius.circular(15)),
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 6,
-                        ),
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CvLibraryFilteredSearch (),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          height: 46,
-                          width: 290,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(15),
-                                topRight: Radius.circular(15),
-                                bottomLeft: Radius.circular(15),
-                                bottomRight: Radius.circular(15)),
-                            color: Colors.green,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 1,
-                            ),
-                          ),
-                          child: const Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.search,
-                                    size: 15,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Text(
-                                    'search Jobs',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.white,
-                                        fontFamily: 'Kanit-Bold'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ]),
-                ),
-              ),
-              Container(
-                color: Colors.white,
-                height: MediaQuery.of(context).size.height,
-                child: const MyCvJob(),
-              )
-            ],
+            ),
+            child:
+            const Text('Search Jobs', style: TextStyle(fontSize: 18)),
           ),
-        ),
+        ],
       ),
     );
   }

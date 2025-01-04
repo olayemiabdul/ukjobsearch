@@ -90,9 +90,9 @@ class _CvSingleSearchState extends State<CvSingleSearch> {
       ),
       body: FutureBuilder(
           future: jobApi.getCvLibraryJob(widget.cvjobName, widget.cvJobLocation),
-          builder: (BuildContext context, AsyncSnapshot<List<Job>> snapshot) {
+          builder: (BuildContext context, AsyncSnapshot<List<CvJobs>> snapshot) {
             if (snapshot.hasData) {
-              final List<Job> ola = snapshot.data!;
+              final List<CvJobs> ola = snapshot.data!;
               final provider = Provider.of<FavouritesJob>(context);
 
               return SmartRefresher(

@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class CvJobDetailsPage extends StatefulWidget {
   const CvJobDetailsPage({super.key, required this.cvJobdetails});
-  final Job cvJobdetails;
+  final CvJobs cvJobdetails;
 
   @override
   State<CvJobDetailsPage> createState() => _CvJobDetailsPageState();
