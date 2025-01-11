@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 
@@ -225,43 +226,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
     );
   }
 
-  Widget buildInfoRow({
-    required IconData icon,
-    required String title,
-    required String value,
-  }) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          color: Colors.green,
-          size: 20,
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                ),
-              ),
-              Text(
-                value,
-                style: GoogleFonts.poppins(
-                  color: Colors.grey[700],
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+
   Widget buildProfileHeader() {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -333,7 +298,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
           const SizedBox(height: 24),
 
           if (!isEditing) ...[
-            // to display Profile Information
+            // Profile Information
             Center(
               child: Column(
                 children: [
@@ -344,40 +309,42 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    userProfile?.currentJob ?? 'Current Job',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+
+
+                  buildInfoRow(
+                    icon: FontAwesomeIcons.briefcase,
+                    title: 'Current Job',
+                    value: userProfile?.currentJob ?? 'Current Job',
                   ),
-                  const SizedBox(height: 8),
-                  Chip(
-                    label: Text(
-                      userProfile?.preferredJob ?? 'Preferred Job',
-                      style: GoogleFonts.poppins(color: Colors.white),
-                    ),
-                    backgroundColor: Colors.green,
+
+                  buildInfoRow(
+                    icon: FontAwesomeIcons.briefcaseMedical,
+                    title: 'Preferred Job',
+                    value:   userProfile?.preferredJob ?? 'Preferred Job',
                   ),
+
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
+
 
             // Contact Information
             buildInfoRow(
-              icon: Icons.location_on_outlined,
+              icon: FontAwesomeIcons.mapMarkerAlt,
               title: 'Location',
               value: userProfile?.location ?? 'Add location',
             ),
-            const SizedBox(height: 16),
+
             buildInfoRow(
-              icon: Icons.phone_outlined,
+              icon: FontAwesomeIcons.phoneAlt,
               title: 'Phone',
               value: userProfile?.phone ?? 'Add phone number',
+            ),
+
+            buildInfoRow(
+              icon: FontAwesomeIcons.envelope,
+              title: 'Email',
+              value: user?.email ?? 'Add email',
             ),
             const SizedBox(height: 24),
 
@@ -502,6 +469,39 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
       ),
     );
   }
+
+// Helper Function for Info Row
+  Widget buildInfoRow({required IconData icon, required String title, required String value}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: Colors.green),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.lato(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[800],
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: GoogleFonts.lato(
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget buildFormField({
     required TextEditingController controller,
     required String label,
@@ -718,7 +718,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
           ),
           child: Column(
             children: [
-              const SizedBox(height: 24),
+
               const SizedBox(height: 24),
               buildProfileHeader(),
               const SizedBox(height: 24),

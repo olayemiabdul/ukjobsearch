@@ -4,10 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'email_notification.dart';
+
 import 'email_servies.dart';
 import 'job_alert_class.dart';
-import 'package:http/http.dart' as http;
+
 
 class JobAlertPage extends StatefulWidget {
   const JobAlertPage({super.key});
@@ -119,12 +119,12 @@ class _JobAlertPageState extends State<JobAlertPage> {
                     labelText: 'Location',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a location';
-                    }
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value == null || value.isEmpty) {
+                  //     return 'Please enter a location';
+                  //   }
+                  //   return null;
+                  // },
                 ),
                 const SizedBox(height: 16),
                 SwitchListTile(
@@ -244,7 +244,12 @@ class _JobAlertPageState extends State<JobAlertPage> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: saveJobAlert,
+                        onPressed: (){
+
+                            saveJobAlert();
+
+
+                        },
                         child: const Text('Create Job Alert'),
                       ),
                     ),
@@ -327,15 +332,7 @@ class _JobAlertPageState extends State<JobAlertPage> {
                       const SizedBox(height: 8),
 
                       // Location
-                      ElevatedButton(
 
-                        onPressed: () async{
-                          const url='https://sendjobalerts-js56qdzanq-uc.a.run.app';
-                          var res=await http.get(Uri.parse(url));
-                          print(res.body);
-                        },
-                        child: const Text('Test Email'),
-                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
