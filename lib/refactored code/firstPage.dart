@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukjobsearch/authentication/phonelogin.dart';
 import 'package:ukjobsearch/main.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
-import 'package:ukjobsearch/refactored%20code/test.dart';
+
 
 import 'bottomNav.dart';
 
@@ -337,19 +337,7 @@ class _TheWelcomePageState extends State<TheWelcomePage> {
                       ),
                     ),
                   ),
-                  ElevatedButton(onPressed:(){
-                    final provider =
-                    Provider.of<FavouritesJob>(context, listen: false);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChangeNotifierProvider.value(
-                          value: provider,
-                          child: const UnifiedJobSearchScreen(),
-                        ),
-                      ),
-                    );
-                  }, child: Text('test')),
+
                   const SizedBox(height: 10),
                   RichText(
                       text: const TextSpan(

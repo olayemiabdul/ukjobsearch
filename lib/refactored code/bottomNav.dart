@@ -1,18 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ukjobsearch/reed_jobs/ReedjobseachPage.dart';
 
-import 'package:ukjobsearch/cvlibrary/CvjobsearchHome.dart';
 import 'package:ukjobsearch/authentication/authScreen.dart';
 
-import 'package:ukjobsearch/screen/myJobs.dart';
+
 
 import 'package:ukjobsearch/refactored%20code/job_alert/welcomePage.dart';
 
 import '../provider/favouriteProvider.dart';
 import 'job_alert/alert_screen.dart';
 import 'favourite tab.dart';
+import 'main_search_page.dart';
 import 'savedJobs.dart';
 import 'test.dart';
 
@@ -91,7 +90,7 @@ class _myNewBarState extends State<myNewBar>
                   body: TabBarView(
                     controller: myController,
                     children: [
-                      const UnifiedJobSearchScreen(),
+                      const AllJobSearchScreen(),
                       const SavedAndAppliedJobsTab(),
                       const JobAlertPage(),
 

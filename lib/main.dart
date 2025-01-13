@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:firebase_app_check/firebase_app_check.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -25,13 +25,7 @@ class MyHttpOverrides extends HttpOverrides {
 Future<void> initializeFirebase() async {
   await Firebase.initializeApp();
 
-  // Initialize App Check
-  await FirebaseAppCheck.instance.activate(
-    // Use debug provider for development
-    webProvider: ReCaptchaV3Provider('abdullahi'),
-    androidProvider: AndroidProvider.debug,
-    appleProvider: AppleProvider.debug,
-  );
+
 }
 
 Future main() async {

@@ -6,12 +6,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:ukjobsearch/cvlibrary/cvJobdescription.dart';
+
 import 'package:ukjobsearch/model/cvlibraryJob.dart';
 import 'package:ukjobsearch/model/jobdescription.dart';
 import 'package:ukjobsearch/model/networkservices.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
-import 'package:ukjobsearch/reed_jobs/jobdecriptionpage.dart';
+
 
 import 'jobs_details.dart';
 

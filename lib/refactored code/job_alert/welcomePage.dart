@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -41,7 +42,9 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
   final TextEditingController currentJobController = TextEditingController();
 
   UserProfile? userProfile;
-
+  late double screenWidth;
+  late double screenHeight;
+  late Orientation orientation;
   @override
   void initState() {
     super.initState();
@@ -54,6 +57,433 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
       lastNameController.text = userProfile?.lastName ?? '';
     }
   }
+
+  Widget _buildPlatformSpecificAppBar() {
+    if (Platform.isIOS) {
+      return CupertinoNavigationBar(
+        middle: Text(
+          'Profile',
+          style: GoogleFonts.poppins(
+            color: CupertinoColors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: CupertinoColors.systemGreen,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                if (downloadUrl != null) {
+                  Share.share('Here is my uploaded resume: $downloadUrl');
+                } else {
+                  _showPlatformAlert('No resume uploaded to share.');
+                }
+              },
+              child: const Icon(CupertinoIcons.share, color: CupertinoColors.white),
+            ),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (_) => const SettingsPageScreen()),
+              ),
+              child: const Icon(CupertinoIcons.settings, color: CupertinoColors.white),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return AppBar(
+      backgroundColor: Colors.green,
+      title: Text(
+        'Profile',
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.share),
+          onPressed: () {
+            if (downloadUrl != null) {
+              Share.share('Here is my uploaded resume: $downloadUrl');
+            } else {
+              _showPlatformAlert('No resume uploaded to share.');
+            }
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsPageScreen()),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showPlatformAlert(String message) {
+    if (Platform.isIOS) {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Alert'),
+          content: Text(message),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message, style: GoogleFonts.poppins()),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+  Widget buildProfileHeader() {
+    final user = FirebaseAuth.instance.currentUser;
+    final imageSize = screenWidth * 0.3; // Responsive image size
+
+    return Container(
+      padding: EdgeInsets.all(screenWidth * 0.05),
+      margin: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.04,
+        vertical: screenHeight * 0.02,
+      ),
+      decoration: BoxDecoration(
+        color: Platform.isIOS ? CupertinoColors.white : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: imageSize / 2,
+                backgroundColor: Platform.isIOS
+                    ? CupertinoColors.systemGrey5
+                    : Colors.grey[200],
+                backgroundImage: userProfile?.customImageUrl != null
+                    ? NetworkImage(userProfile!.customImageUrl!)
+                    : user?.photoURL != null
+                    ? NetworkImage(user!.photoURL!)
+                    : null,
+                child: userProfile?.customImageUrl == null && user?.photoURL == null
+                    ? Icon(
+                  Platform.isIOS
+                      ? CupertinoIcons.person
+                      : Icons.person,
+                  size: imageSize / 2,
+                  color: Platform.isIOS
+                      ? CupertinoColors.systemGrey
+                      : Colors.grey,
+                )
+                    : null,
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: _buildCameraButton(),
+              ),
+            ],
+          ),
+          SizedBox(height: screenHeight * 0.02),
+          // Name and other profile information...
+          buildProfileInfo(),
+          SizedBox(height: screenHeight * 0.02),
+          buildEditButton(),
+        ],
+      ),
+    );
+  }
+  Widget _buildCameraButton() {
+    if (Platform.isIOS) {
+      return CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: pickAndUploadImage,
+        child: Container(
+          padding: EdgeInsets.all(screenWidth * 0.02),
+          decoration: BoxDecoration(
+            color: CupertinoColors.activeGreen,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: const Icon(CupertinoIcons.camera, color: CupertinoColors.white),
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: pickAndUploadImage,
+      borderRadius: BorderRadius.circular(30),
+      child: Container(
+        padding: EdgeInsets.all(screenWidth * 0.02),
+        decoration: BoxDecoration(
+          color: Colors.green,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: const Icon(Icons.camera_alt, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget buildProfileInfo() {
+    final textScale = MediaQuery.of(context).textScaleFactor;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (!isEditing) {
+      return Column(
+        children: [
+          // Profile Information
+          Text(
+            '${userProfile?.firstName ?? ''} ${userProfile?.lastName ?? ''}',
+            style: GoogleFonts.poppins(
+              fontSize: 22 * textScale,
+              fontWeight: FontWeight.bold,
+              color: Platform.isIOS
+                  ? CupertinoColors.label
+                  : Colors.black87,
+            ),
+          ),
+          SizedBox(height: screenHeight * 0.01),
+          Divider(
+            color: Platform.isIOS
+                ? CupertinoColors.systemGrey4
+                : Colors.grey[300],
+          ),
+          SizedBox(height: screenHeight * 0.02),
+          ...buildProfileRows(),
+          SizedBox(height: screenHeight * 0.03),
+
+        ],
+      );
+    } else {
+      return Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Edit Profile',
+              style: GoogleFonts.poppins(
+                fontSize: 20 * textScale,
+                fontWeight: FontWeight.w600,
+                color: Platform.isIOS
+                    ? CupertinoColors.label
+                    : Colors.black87,
+              ),
+            ),
+            SizedBox(height: screenHeight * 0.02),
+            buildFormField(
+              controller: firstNameController,
+              label: 'First Name',
+              icon: Platform.isIOS ? CupertinoIcons.person : Icons.person_outline,
+            ),
+            SizedBox(height: screenHeight * 0.016),
+            buildFormField(
+              controller: lastNameController,
+              label: 'Last Name',
+              icon: Platform.isIOS ? CupertinoIcons.person : Icons.person_outline,
+            ),
+            SizedBox(height: screenHeight * 0.016),
+            buildFormField(
+              controller: currentJobController,
+              label: 'Current Job',
+              icon: Platform.isIOS ? CupertinoIcons.briefcase : Icons.work_outline,
+            ),
+            SizedBox(height: screenHeight * 0.016),
+            buildFormField(
+              controller: preferredJobController,
+              label: 'Preferred Job',
+              icon: Platform.isIOS ? CupertinoIcons.briefcase : Icons.work_outline,
+            ),
+            SizedBox(height: screenHeight * 0.016),
+            buildFormField(
+              controller: locationController,
+              label: 'Location',
+              icon: Platform.isIOS ? CupertinoIcons.location : Icons.location_on_outlined,
+            ),
+            SizedBox(height: screenHeight * 0.016),
+            buildFormField(
+              controller: phoneController,
+              label: 'Phone Number',
+              icon: Platform.isIOS ? CupertinoIcons.phone : Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+            ),
+            SizedBox(height: screenHeight * 0.024),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (Platform.isIOS)
+                  CupertinoButton(
+                    onPressed: () => setState(() => isEditing = false),
+                    child: const Text('Cancel'),
+                  )
+                else
+                  TextButton(
+                    onPressed: () => setState(() => isEditing = false),
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ),
+                SizedBox(width: screenWidth * 0.04),
+                if (Platform.isIOS)
+                  CupertinoButton.filled(
+                    onPressed: () {
+                      if (formKey.currentState?.validate() ?? false) {
+                        updateUserProfile();
+                      }
+                    },
+                    child: const Text('Save'),
+                  )
+                else
+                  ElevatedButton(
+                    onPressed: () {
+                      if (formKey.currentState?.validate() ?? false) {
+                        updateUserProfile();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.08,
+                        vertical: screenHeight * 0.015,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Save',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  List<Widget> buildProfileRows() {
+    final user = FirebaseAuth.instance.currentUser;
+    final infoItems = [
+      {
+        'icon': FontAwesomeIcons.briefcase,
+        'title': 'Current Job',
+        'value': userProfile?.currentJob ?? 'Not specified',
+      },
+      {
+        'icon': FontAwesomeIcons.userTie,
+        'title': 'Preferred Job',
+        'value': userProfile?.preferredJob ?? 'Not specified',
+      },
+      {
+        'icon': FontAwesomeIcons.locationDot,
+        'title': 'Location',
+        'value': userProfile?.location ?? 'Not specified',
+      },
+      {
+        'icon': FontAwesomeIcons.phoneVolume,
+        'title': 'Location',
+        'value': userProfile?.phone?? 'Not specified',
+      },
+      {
+        'icon': FontAwesomeIcons.message,
+        'title': 'Location',
+        'value': user!.email?? 'Not specified',
+      },
+      // Add other profile rows...
+    ];
+
+    return infoItems.map((item) => buildProfileRow(
+      icon: item['icon'] as IconData,
+      title: item['title'] as String,
+      value: item['value'] as String,
+    )).toList();
+  }
+
+  Widget buildEditButton() {
+
+    if (Platform.isIOS) {
+      // iOS-specific button
+      return CupertinoButton(
+        color: CupertinoColors.activeGreen,
+        borderRadius: BorderRadius.circular(12),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.08,
+          vertical: screenHeight * 0.015,
+        ),
+        onPressed: () => setState(() => isEditing = true),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(CupertinoIcons.pencil),
+            SizedBox(width: screenWidth * 0.02),
+            const Text(
+              'Edit Profile',
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Android-specific button
+      return ElevatedButton.icon(
+        onPressed: () => setState(() => isEditing = true),
+        icon: const Icon(Icons.edit),
+        label: const Text(
+          'Edit Profile',
+          style: TextStyle(fontSize: 16),
+        ),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.green,
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.08,
+            vertical: screenHeight * 0.015,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+  }
+
+
+
+
+
+
+
+
+
+
 
   Future<void> loadUserProfile() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -227,248 +657,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
   }
 
 
-  Widget buildProfileHeader() {
-    final user = FirebaseAuth.instance.currentUser;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Profile Image Section
-          Center(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.green, width: 3),
-                  ),
-                  child: CircleAvatar(
-                    radius: 65,
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage: userProfile?.customImageUrl != null
-                        ? NetworkImage(userProfile!.customImageUrl!)
-                        : user?.photoURL != null
-                        ? NetworkImage(user!.photoURL!)
-                        : null,
-                    child: userProfile?.customImageUrl == null &&
-                        user?.photoURL == null
-                        ? const Icon(Icons.person, size: 65, color: Colors.grey)
-                        : null,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Material(
-                    elevation: 4,
-                    borderRadius: BorderRadius.circular(30),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.camera_alt, color: Colors.white),
-                        onPressed: pickAndUploadImage,
-                        tooltip: 'Update Profile Picture',
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          if (!isEditing) ...[
-            // Profile Information
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    '${userProfile?.firstName ?? ''} ${userProfile?.lastName ?? ''}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-
-                  buildInfoRow(
-                    icon: FontAwesomeIcons.briefcase,
-                    title: 'Current Job',
-                    value: userProfile?.currentJob ?? 'Current Job',
-                  ),
-
-                  buildInfoRow(
-                    icon: FontAwesomeIcons.briefcaseMedical,
-                    title: 'Preferred Job',
-                    value:   userProfile?.preferredJob ?? 'Preferred Job',
-                  ),
-
-                ],
-              ),
-            ),
-
-
-            // Contact Information
-            buildInfoRow(
-              icon: FontAwesomeIcons.mapMarkerAlt,
-              title: 'Location',
-              value: userProfile?.location ?? 'Add location',
-            ),
-
-            buildInfoRow(
-              icon: FontAwesomeIcons.phoneAlt,
-              title: 'Phone',
-              value: userProfile?.phone ?? 'Add phone number',
-            ),
-
-            buildInfoRow(
-              icon: FontAwesomeIcons.envelope,
-              title: 'Email',
-              value: user?.email ?? 'Add email',
-            ),
-            const SizedBox(height: 24),
-
-            // Edit Button
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () => setState(() => isEditing = true),
-                icon: const Icon(Icons.edit),
-                label: Text(
-                  'Edit Profile',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ] else ...[
-            // Edit Form
-            Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Edit Profile',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  buildFormField(
-                    controller: firstNameController,
-                    label: 'First Name',
-                    icon: Icons.person_outline,
-                  ),
-                  const SizedBox(height: 16),
-                  buildFormField(
-                    controller: lastNameController,
-                    label: 'Last Name',
-                    icon: Icons.person_outline,
-                  ),
-                  const SizedBox(height: 16),
-                  buildFormField(
-                    controller: currentJobController,
-                    label: 'Current Job',
-                    icon: Icons.work_outline,
-                  ),
-                  const SizedBox(height: 16),
-                  buildFormField(
-                    controller: preferredJobController,
-                    label: 'Preferred Job',
-                    icon: Icons.work_outline,
-                  ),
-                  const SizedBox(height: 16),
-                  buildFormField(
-                    controller: locationController,
-                    label: 'Location',
-                    icon: Icons.location_on_outlined,
-                  ),
-                  const SizedBox(height: 16),
-                  buildFormField(
-                    controller: phoneController,
-                    label: 'Phone Number',
-                    icon: Icons.phone_outlined,
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => setState(() => isEditing = false),
-                        child: Text(
-                          'Cancel',
-                          style: GoogleFonts.poppins(),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (formKey.currentState?.validate() ?? false) {
-                            updateUserProfile();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'Save',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 
 // Helper Function for Info Row
   Widget buildInfoRow({required IconData icon, required String title, required String value}) {
@@ -534,9 +723,12 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
     if (downloadUrl == null) return const SizedBox.shrink();
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.04,
+          vertical: screenHeight * 0.02,
+        ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Platform.isIOS ? CupertinoColors.white : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -568,7 +760,7 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
             ),
           ),
           SizedBox(
-            height: 500,
+            height: screenHeight * 0.6,
             child: PDF(
               enableSwipe: true,
               defaultPage: currentPage,
@@ -657,156 +849,194 @@ class _WelcomeHomeScreenState extends State<WelcomeHomeScreen> {
       ),
     );
   }
-  @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        title: Text(
-          'Profile',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        actions: [
-          Semantics(
-            label: 'Share Resume',
-            child: IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () {
-                if (downloadUrl != null) {
-                  Share.share('Here is my uploaded resume: $downloadUrl');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'No resume uploaded to share.',
-                        style: GoogleFonts.poppins(),
-                      ),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SettingsPageScreen()),
+  Widget buildButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+    required String label,
+    required Color labelColor,
+    required Color backgroundColor,
+    Color? borderColor,
+    double borderWidth = 0.0,
+    required BuildContext context,
+  }) {
+    // Get screen dimensions and orientation
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
+    return Platform.isIOS
+        ? CupertinoButton(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * (isPortrait ? 0.1 : 0.15),
+        vertical: screenHeight * (isPortrait ? 0.02 : 0.03),
+      ),
+      onPressed: onPressed,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: labelColor),
+          SizedBox(width: screenWidth * 0.02),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              color: labelColor,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
-
       ),
-      body:  SingleChildScrollView(
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFFFE0C2), // Top gradient color (peach-like)
-                Color(0xFF7FFFD4), // Bottom gradient color (blue-like)
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: Column(
-            children: [
-
-              const SizedBox(height: 24),
-              buildProfileHeader(),
-              const SizedBox(height: 24),
-              buildPDFViewer(),
-
-
-              const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: pickAndUploadResume,
-                        icon: const Icon(
-                          Icons.upload_file,
-                          color: Colors.black,
-                        ),
-                        label: Text(
-                          'Upload Resume',
-                          style: GoogleFonts.poppins(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: const BorderSide(color: Colors.black, width: 2.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          if (downloadUrl != null) {
-                            Share.share('Here is my uploaded resume: $downloadUrl');
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'No resume uploaded to share.',
-                                  style: GoogleFonts.poppins(),
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                        icon: const Icon(
-                          Icons.share,
-                          color: Colors.white,
-                        ),
-                        label: Text(
-                          'Share Resume',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-
-
-
-              const SizedBox(height: 32),
-            ],
-          ),
+    )
+        : ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, color: labelColor),
+      label: Text(
+        label,
+        style: GoogleFonts.poppins(
+          color: labelColor,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: labelColor,
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * (isPortrait ? 0.1 : 0.15),
+          vertical: screenHeight * (isPortrait ? 0.02 : 0.03),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: borderColor != null
+              ? BorderSide(color: borderColor, width: borderWidth)
+              : BorderSide.none,
         ),
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+    orientation = MediaQuery.of(context).orientation;
+
+    final body = SingleChildScrollView(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFFE0C2), Color(0xFF7FFFD4)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: screenHeight * 0.03),
+            buildProfileHeader(),
+            SizedBox(height: screenHeight * 0.03),
+            buildPDFViewer(),
+            SizedBox(height: screenHeight * 0.03),
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: pickAndUploadResume,
+                      icon: const Icon(
+                        Icons.upload_file,
+                        color: Colors.black,
+                      ),
+                      label: Text(
+                        'Upload Resume',
+                        style: GoogleFonts.poppins(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: Colors.black, width: 2.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        if (downloadUrl != null) {
+                          Share.share('Here is my uploaded resume: $downloadUrl');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'No resume uploaded to share.',
+                                style: GoogleFonts.poppins(),
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.share,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        'Share Resume',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+
+
+
+
+
+            SizedBox(height: screenHeight * 0.04),
+          ],
+        ),
+      ),
+    );
+
+    if (Platform.isIOS) {
+      return CupertinoPageScaffold(
+        navigationBar: _buildPlatformSpecificAppBar() as ObstructingPreferredSizeWidget,
+        child: body,
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: _buildPlatformSpecificAppBar() as PreferredSizeWidget,
+
+      body:  body,
+    );
+  }
+
 }
 
