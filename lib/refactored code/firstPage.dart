@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ukjobsearch/authentication/phonelogin.dart';
+import 'package:ukjobsearch/Auth/phonelogin.dart';
 import 'package:ukjobsearch/main.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
 
@@ -185,7 +185,7 @@ class _TheWelcomePageState extends State<TheWelcomePage> {
                         MaterialPageRoute(
                           builder: (_) => ChangeNotifierProvider.value(
                             value: provider,
-                            child: const myNewBar(),
+                            child: const MyNavBar(),
                           ),
                         ),
                       );
@@ -258,7 +258,7 @@ class _TheWelcomePageState extends State<TheWelcomePage> {
                     child: InkWell(
                       onTap: () {
                         //choosing platform
-                        if (!kIsWeb && Platform.isAndroid) {
+                        if (!kIsWeb && Platform.isAndroid||Platform.isIOS) {
                           signInWithGoogle() ;
                         } else if (kIsWeb) {
                           signInWithGoogleWeb();

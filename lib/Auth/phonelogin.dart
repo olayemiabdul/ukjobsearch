@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:ukjobsearch/main.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
 import 'package:ukjobsearch/refactored%20code/bottomNav.dart';
-import 'package:ukjobsearch/refactored%20code/job_alert/welcomePage.dart';
+import 'package:ukjobsearch/refactored%20code/welcomePage.dart';
 
 import 'authScreen.dart';
 
@@ -75,7 +75,7 @@ class _PhoneLoginPageState extends State<PhoneLoginPage> {
         MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider.value(
             value: provider,
-            child: const myNewBar(),
+            child: const MyNavBar(),
             //myNewBar(),
           ),
         ),
@@ -105,7 +105,7 @@ webAuthentication(confirmationResult, String otp)async{
   UserCredential userCredential = await confirmationResult.confirm(otp);
 
   userCredential.additionalUserInfo!.isNewUser
-      ? Navigator.push(context, MaterialPageRoute(builder:(context)=>myNewBar()))
+      ? Navigator.push(context, MaterialPageRoute(builder:(context)=>MyNavBar()))
       : Navigator.push(context, MaterialPageRoute(builder:(context)=>WelcomeHomeScreen ()));
   //xuserCredential.additionalUserInfo
 }
@@ -238,7 +238,7 @@ class _PhoneOTPVerificationState extends State<PhoneOTPVerification> {
     // Navigator.push(context, MaterialPageRoute(builder:(context)=>myNewBar()));
 
     userCredential.additionalUserInfo!.isNewUser
-        ? Navigator.push(context, MaterialPageRoute(builder:(context)=>myNewBar()))
+        ? Navigator.push(context, MaterialPageRoute(builder:(context)=>MyNavBar()))
         : Navigator.push(context, MaterialPageRoute(builder:(context)=>WelcomeHomeScreen()));;
   }
   Widget SubmitOTPButton(String text) => ElevatedButton(

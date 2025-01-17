@@ -36,11 +36,13 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
   List<CvJobs> cvLibraryJobs = [];
   List<ReedResult> reedJobs = [];
   List<CvJobs> filteredCvLibraryJobs = [];
+  List<String> searchSuggestions = [];
   List<ReedResult> filteredReedJobs = [];
   bool isLoading = false;
   bool hasError = false;
   String errorMessage = '';
   bool isInitialized = false;
+  bool showOverlay = false;
   int totalJobs = 0;
   late double screenWidth;
   late double screenHeight;
@@ -49,14 +51,25 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
   @override
   void initState() {
     super.initState();
-    fetchInitialJob();
-    jobTitleController.addListener(() {
-      filterJobs();
-    });
-    locationController.addListener(() {
-      filterJobs();
+    getInitialJobs();
+
+    jobTitleController.addListener(() async {
+      final query = jobTitleController.text.trim();
+      if (query.isNotEmpty) {
+        showOverlay = true;
+        isLoading = true; // Show a loading indicator
+        setState(() {});
+        searchSuggestions = await jobApi.jobCategoriesSuggestions(query);
+        isLoading = false;
+      } else {
+        showOverlay = false;
+        searchSuggestions = [];
+      }
+      setState(() {});
     });
   }
+
+
 
   @override
   void dispose() {
@@ -65,6 +78,98 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
     refreshController.dispose();
     super.dispose();
   }
+  Widget buildSearchOverlay() {
+    if (!showOverlay) return const SizedBox.shrink();
+
+    return Positioned.fill(
+      child: Material(
+        color: Colors.black.withOpacity(0.3), // Semi-transparent background
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Search bar with 'Clear' button
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+              color: Colors.white,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: jobTitleController,
+                      decoration: const InputDecoration(
+                        hintText: "Search jobs...",
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(color: Colors.grey),
+                      ),
+                      style: const TextStyle(fontSize: 16),
+                      onChanged: (value) {
+                        if (value.isEmpty) {
+                          showOverlay = false;
+                          searchSuggestions.clear();
+                        } else {
+                          showOverlay = true;
+                        }
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                    onPressed: () {
+                      jobTitleController.clear();
+                      showOverlay = false;
+                      setState(() {});
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                color: Colors.white, // Match the dropdown to UI design
+                child: ListView.builder(
+                  itemCount: searchSuggestions.length,
+                  itemBuilder: (context, index) {
+                    final suggestion = searchSuggestions[index];
+                    return ListTile(
+                      leading: const Icon(Icons.lightbulb_outline, color: Colors.grey),
+                      title: Text(
+                        suggestion,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                      onTap: () async {
+                        // Set the text field to the selected suggestion
+                        jobTitleController.text = suggestion;
+
+                        // Hide overlay
+                        showOverlay = true;
+                        setState(() {});
+
+
+                        // Trigger the search with the selected suggestion
+                        await searchJobs(suggestion, locationController.text);
+
+                        // Update the UI to show results
+                        setState(() {});
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
 
   Widget buildSearchField({
     required TextEditingController controller,
@@ -107,6 +212,8 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
     if (Platform.isIOS) {
       return Container(
         width: width,
+
+
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         decoration: BoxDecoration(
           color: CupertinoColors.white,
@@ -125,16 +232,25 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
     }
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      margin: const EdgeInsets.all(8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 4,
-      child: content,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: 80,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: content,
+        ),
+      ),
+
     );
   }
-
-  Widget buildCvJobCard(FavouritesJob favouritesJob, CvJobs job) {
+//passing orientation and screenwidth for responsive
+  Widget buildCvJobCard(FavouritesJob favouritesJob, CvJobs job, Orientation orientation, double screenWidth) {
     final provider = Provider.of<FavouritesJob>(context, listen: false);
-    final cardWidth = orientation == Orientation.portrait
+    final cardWidth = orientation == Orientation.landscape
         ? screenWidth * 0.9
         : screenWidth * 0.45;
 
@@ -144,7 +260,7 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
         job.hlTitle ?? 'Job Title Not Specified',
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: screenWidth * 0.04,
+          fontSize: 18,
         ),
       ),
       subtitle: Column(
@@ -186,7 +302,7 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
 
     return buildJobCard(content: content, width: cardWidth);
   }
-  Widget buildReedJobCard(FavouritesJob favouritesJob, ReedResult job) {
+  Widget buildReedJobCard(FavouritesJob favouritesJob, ReedResult job, Orientation orientation, double screenWidth) {
     final provider = Provider.of<FavouritesJob>(context, listen: false);
     final cardWidth = orientation == Orientation.portrait
         ? screenWidth * 0.9
@@ -196,25 +312,26 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
       contentPadding: EdgeInsets.all(screenWidth * 0.04),
       title: Text(
         job.jobTitle ?? 'Job Title Not Specified',
-        style: TextStyle(
+        style: const TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: screenWidth * 0.04,
+          fontSize: 14,
         ),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           Text(
             job.employerName ?? 'Employer not specified',
-            style: TextStyle(fontSize: screenWidth * 0.035),
+            //style: TextStyle(fontSize: screenWidth * 0.035),
           ),
           Text(
             job.locationName ?? 'Location not specified',
-            style: TextStyle(fontSize: screenWidth * 0.035),
+            //style: TextStyle(fontSize: screenWidth * 0.035),
           ),
           Text(
             'Posted: ${job.date.toString()}',
-            style: TextStyle(fontSize: screenWidth * 0.035),
+            //style: TextStyle(fontSize: screenWidth * 0.035),
           ),
         ],
       ),
@@ -377,12 +494,14 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
   List<Widget> buildJobCards() {
     final List<Widget> cards = [];
     final favouritesJob = Provider.of<FavouritesJob>(context, listen: false);
+    final orientation = MediaQuery.of(context).orientation;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     for (var job in filteredCvLibraryJobs) {
-      cards.add(buildCvJobCard(favouritesJob, job));
+      cards.add(buildCvJobCard(favouritesJob, job, orientation,screenWidth));
     }
     for (var job in filteredReedJobs) {
-      cards.add(buildReedJobCard(favouritesJob, job));
+      cards.add(buildReedJobCard(favouritesJob, job, orientation,screenWidth));
     }
 
     return cards;
@@ -429,10 +548,13 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
               icon: Platform.isIOS
                   ? CupertinoIcons.briefcase
                   : Icons.work_outline,
-              onSubmitted: () => searchJobs(
-                jobTitleController.text,
-                locationController.text,
-              ),
+              onSubmitted: () {
+                showOverlay = false;
+                searchJobs(
+                  jobTitleController.text,
+                  locationController.text,
+                );
+              },
             ),
           ),
           SizedBox(width: screenWidth * 0.02),
@@ -453,6 +575,7 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
       ),
     );
   }
+
 
   Widget buildTotalJobsCounter() {
     return Container(
@@ -475,7 +598,7 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
   }
 
 
-  Future<void> fetchInitialJob() async {
+  Future<void> getInitialJobs() async {
     if (isLoading) return;
 
     setState(() {
@@ -543,7 +666,7 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
 
     // If no user input, load initial jobs
     if (jobTitle.trim().isEmpty && location.trim().isEmpty) {
-      fetchInitialJob();
+      getInitialJobs();
       return;
     }
 
@@ -600,24 +723,14 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
     screenHeight = MediaQuery.of(context).size.height;
     orientation = MediaQuery.of(context).orientation;
 
-    // Set system overlay style based on platform
-    SystemChrome.setSystemUIOverlayStyle(
-      Platform.isIOS
-          ? const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-      )
-          : const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFF7FFFD4),
-        statusBarIconBrightness: Brightness.light,
-      ),
-    );
-
     if (Platform.isIOS) {
       return CupertinoPageScaffold(
         navigationBar: buildSearchAppBar() as ObstructingPreferredSizeWidget,
-        child: SafeArea(
-          child: buildJobList(),
+        child: Stack(
+          children: [
+            SafeArea(child: buildJobList()),
+            buildSearchOverlay(),
+          ],
         ),
       );
     }
@@ -625,25 +738,29 @@ class _AllJobSearchScreenState extends State<AllJobSearchScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: buildSearchAppBar(),
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFFFE0C2), // Top gradient color (peach-like)
-                Color(0xFF7FFFD4), // Bottom gradient color (blue-like)
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: Column(
-            children: [
-
-              Expanded(
-                child: buildJobList(),
+        body: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFFFE0C2), // Top gradient color (peach-like)
+                    Color(0xFF7FFFD4), // Bottom gradient color (blue-like)
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
-            ],
-          ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: buildJobList(),
+                  ),
+                ],
+              ),
+            ),
+            buildSearchOverlay(),
+          ],
         ),
       ),
     );

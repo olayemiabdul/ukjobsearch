@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 
-import 'email_servies.dart';
+import 'email_services.dart';
 import 'job_alert_class.dart';
 
 
@@ -127,6 +129,46 @@ class _JobAlertPageState extends State<JobAlertPage> {
                   // },
                 ),
                 const SizedBox(height: 16),
+                // In your JobAlertPage widget
+                // SwitchListTile(
+                //   title: const Text('Email Notifications'),
+                //   value: emailNotification,
+                //   onChanged: (bool value) async {
+                //     if (user == null) {
+                //       ScaffoldMessenger.of(context).showSnackBar(
+                //         const SnackBar(content: Text('Please log in to update notification preferences')),
+                //       );
+                //       return;
+                //     }
+                //
+                //     try {
+                //       final callable = FirebaseFunctions.instance
+                //           .httpsCallable('handleEmailPreferenceChange');
+                //
+                //       final response = await callable.call({
+                //         'alertId': currentAlertId,
+                //         'userId': user!.uid,
+                //         'emailEnabled': value,
+                //       });
+                //
+                //       if (response.data['success']) {
+                //         setState(() {
+                //           emailNotification = value;
+                //         });
+                //
+                //         ScaffoldMessenger.of(context).showSnackBar(
+                //           SnackBar(
+                //             content: Text(value ? 'Email notifications enabled' : 'Email notifications disabled'),
+                //           ),
+                //         );
+                //       }
+                //     } catch (e) {
+                //       ScaffoldMessenger.of(context).showSnackBar(
+                //         SnackBar(content: Text('Error updating preferences: $e')),
+                //       );
+                //     }
+                //   },
+                // ),
                 SwitchListTile(
                   title: const Text('Email Notifications'),
                   value: emailNotification,
@@ -401,6 +443,13 @@ class _JobAlertPageState extends State<JobAlertPage> {
                         ],
                       ),
                       const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: ()async{
+                          var res=await http.get(Uri.parse('https://sendjobalerts-js56qdzanq-uc.a.run.app'));
+                          print(res.body);
+                        },
+                        child: Text('Send Mail'),
+                      ),
 
                       // Action buttons
                       Row(

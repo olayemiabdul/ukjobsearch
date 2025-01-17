@@ -14,8 +14,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:share_plus/share_plus.dart';
-import '../profile_model.dart';
-import '../../settings/setting_screen.dart';
+import 'profile_model.dart';
+import '../settings/setting_screen.dart';
 
 class WelcomeHomeScreen extends StatefulWidget {
   const WelcomeHomeScreen({super.key});

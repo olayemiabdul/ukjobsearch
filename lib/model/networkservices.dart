@@ -177,6 +177,36 @@ class ApiServices {
     return cvlibraryjob;
   }
 
+  Future<List<String>> jobCategoriesSuggestions(String query) async {
+    if (query.isEmpty) return [];
+
+    List<String> jobTitles = [];
+
+    try {
+      // Fetch jobs from Reed API
+      final reedResults = await getFilesApi(query, ""); // Pass query as title
+      jobTitles.addAll(
+        reedResults.map((job) => job.jobTitle ?? '').where((title) => title.isNotEmpty),
+      );
+
+      // Fetch jobs from CV Library API
+      final cvResults = await getCvLibraryJob(query, ""); // Pass query as title
+      jobTitles.addAll(
+        cvResults.map((job) => job.hlTitle ?? '').where((title) => title.isNotEmpty),
+      );
+
+      // Remove duplicates and filter by the query
+      return jobTitles
+          .toSet()
+          .where((title) => title.toLowerCase().contains(query.toLowerCase()))
+          .take(10) // Limit to 10 suggestions
+          .toList();
+    } catch (e) {
+      print("Error fetching job suggestions: $e");
+      return [];
+    }
+  }
+
 
 
 

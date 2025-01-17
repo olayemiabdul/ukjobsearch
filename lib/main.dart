@@ -1,16 +1,19 @@
 import 'dart:io';
 
 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:ukjobsearch/provider/favouriteProvider.dart';
 import 'package:ukjobsearch/authentication/authourity.dart';
+import 'package:ukjobsearch/refactored%20code/firstPage.dart';
 import 'firebase_options.dart';
 
-import 'package:ukjobsearch/authentication/emailverification.dart';
+import 'package:ukjobsearch/Auth/emailverification.dart';
 
 import 'package:ukjobsearch/utils.dart';
 
@@ -32,21 +35,51 @@ Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebase();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-    //for flutter web or you can run from terminal
-    //dart pub global activate flutterfire_cli
-    //flutterfire configure
-    //import firebase_options.dart to main.dart
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  //   //for flutter web or you can run from terminal
+  //   //dart pub global activate flutterfire_cli
+  //   //flutterfire configure
+  //   //import firebase_options.dart to main.dart
+  //
+  //   //or use
+  //   // options: const FirebaseOptions( apiKey: "AIzaSyAQNN37TiffhHmEOMn1uVa31l1cy7XLjuA",
+  //   // authDomain: "uk-job-search.firebaseapp.com",
+  //   // projectId: "uk-job-search",
+  //   // storageBucket: "uk-job-search.appspot.com",
+  //   // messagingSenderId: "1063846392894",
+  //   // appId: "1:1063846392894:web:efba2a0f0a8fffb587cd6f"),
+  // );
+  // Initialize App Check after Firebase initialization
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-    //or use
-    // options: const FirebaseOptions( apiKey: "AIzaSyAQNN37TiffhHmEOMn1uVa31l1cy7XLjuA",
-    // authDomain: "uk-job-search.firebaseapp.com",
-    // projectId: "uk-job-search",
-    // storageBucket: "uk-job-search.appspot.com",
-    // messagingSenderId: "1063846392894",
-    // appId: "1:1063846392894:web:efba2a0f0a8fffb587cd6f"),
-  );
+    // Wait a moment after Firebase initialization
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Initialize App Check with debug token for development
+    if (kDebugMode) {
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: AndroidProvider.debug,
+        appleProvider: AppleProvider.debug,
+      );
+    } else {
+      // Production configuration
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: AndroidProvider.debug,
+        appleProvider: AppleProvider.deviceCheck,
+      );
+    }
+
+    print('Firebase and App Check initialized successfully');
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+    rethrow;
+  }
+
+
   HttpOverrides.global = MyHttpOverrides();
   //statusbar color
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -123,7 +156,7 @@ class JobsearchApp extends StatelessWidget {
                   } else if (snapshot.hasData) {
                     return const EmailVerificationPage();
                   } else {
-                    return const myAuthPage();
+                    return const TheWelcomePage();
                   }
                 }),
           ),

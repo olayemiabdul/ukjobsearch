@@ -2,11 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:ukjobsearch/authentication/authScreen.dart';
+import 'package:ukjobsearch/Auth/authScreen.dart';
 
 
 
-import 'package:ukjobsearch/refactored%20code/job_alert/welcomePage.dart';
+import 'package:ukjobsearch/refactored%20code/welcomePage.dart';
 
 import '../provider/favouriteProvider.dart';
 import 'job_alert/alert_screen.dart';
@@ -15,14 +15,14 @@ import 'main_search_page.dart';
 import 'savedJobs.dart';
 import 'test.dart';
 
-class myNewBar extends StatefulWidget {
-  const myNewBar({super.key});
+class MyNavBar extends StatefulWidget {
+  const MyNavBar({super.key});
 
   @override
-  State<myNewBar> createState() => _myNewBarState();
+  State<MyNavBar> createState() => _MyNavBarState();
 }
 
-class _myNewBarState extends State<myNewBar>
+class _MyNavBarState extends State<MyNavBar>
     with SingleTickerProviderStateMixin {
   TabController? myController;
   final user = FirebaseAuth.instance.currentUser;
@@ -45,6 +45,7 @@ class _myNewBarState extends State<myNewBar>
 
   @override
   Widget build(BuildContext context) {
+
     return ChangeNotifierProvider<FavouritesJob>(
         create: (BuildContext context) => FavouritesJob(),
         builder: (context, child) {
@@ -95,7 +96,7 @@ class _myNewBarState extends State<myNewBar>
                       const JobAlertPage(),
 
                       //if user is signin display welcome page or else display register page
-                      user != null ? const WelcomeHomeScreen() : const ProfileAuth()
+                      user != null ? const WelcomeHomeScreen() :  AuthScreen(isLogin: true, onToggleAuth: () {  },)
                     ],
                   ),
                 ),

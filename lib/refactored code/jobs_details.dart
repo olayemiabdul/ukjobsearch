@@ -22,9 +22,102 @@ class AllJobDetailsPage extends StatefulWidget {
 }
 
 class _AllJobDetailsPageState extends State<AllJobDetailsPage> {
+
   bool isDescriptionExpanded = false;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+
+  Future<bool?> showAuthenticationDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sign in for Better Experience'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Sign in to track your applications and get personalized job recommendations.',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Continue as Guest'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final result = await showSignInDialog();
+                  if (result == true) {
+                    Navigator.of(context).pop(true);
+                  }
+                },
+                child: const Text('Sign In'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool?> showSignInDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sign In'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  hintText: 'Enter your email',
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  hintText: 'Enter your password',
+                ),
+                obscureText: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: Implement actual authentication logic here
+                // For now, we'll just simulate success
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Sign In'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Future<void> confirmAndLaunchJob() async {
+    // First check if user wants to sign in
+    final authResult = await showAuthenticationDialog();
+
+    // User cancelled the dialog
+    if (authResult == null) return;
+
+    // Now show the redirect notice
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -32,7 +125,7 @@ class _AllJobDetailsPageState extends State<AllJobDetailsPage> {
         content: Text(
           'You will be redirected to the ${widget.isCvLibrary ? "CV Library" : "Reed"} website. Do you want to continue?',
           style: GoogleFonts.lateef(
-            textStyle: const TextStyle( fontSize: 16, ),
+            textStyle: const TextStyle(fontSize: 16),
           ),
         ),
         actions: [
@@ -52,10 +145,20 @@ class _AllJobDetailsPageState extends State<AllJobDetailsPage> {
       final url = Uri.parse(widget.isCvLibrary
           ? "https://www.cv-library.co.uk${widget.jobDetails.url}"
           : widget.jobDetails.jobUrl.toString());
+
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
+
         final provider = Provider.of<FavouritesJob>(context, listen: false);
-        provider.saveAppliedCvJob(widget.jobDetails);
+
+        // If user is signed in, save the application
+        if (authResult == true) {
+          if (widget.isCvLibrary) {
+            await provider.applyForCvJob(widget.jobDetails);
+          } else {
+            await provider.applyForReedJob(widget.jobDetails);
+          }
+        }
       }
     }
   }
